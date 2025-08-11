@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOAC Treatment Recommendations</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+  body {
+    background: #f8f9fa;
+  }
+  .container {
+    max-width: 700px;
+    margin-top: 40px;
+  }
+  .card {
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .info-box {
+    border-left: 6px solid #0d6efd;
+    background-color: #e9f0ff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0.25rem;
+  }
+  .recommendation {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+  .recommendation.positive {
+    color: green;
+  }
+  .recommendation.warning {
+    color: darkorange;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card p-4">
+    <h2 class="mb-4 text-center">DOAC Treatment Recommendations</h2>
+
+    <div id="infoBoxes" class="mb-4">
+      <!-- Info boxes about meds and notes -->
+      <div class="info-box">
+        <strong>Eliquis (Apixaban):</strong><br />
+        2x 5mg or 2x 2.5mg daily
+      </div>
+      <div class="info-box">
+        <strong>Xarelto (Rivaroxaban):</strong><br />
+        20 mg, 15 mg or 10 mg daily
+      </div>
+      <div class="info-box">
+        <strong>Additional Notes:</strong><br />
+        Consider PPI therapy, Consultation hematology, Peak level control
+      </div>
+    </div>
+
+    <div id="recommendations" class="mb-4">
+      <!-- Treatment recommendations appear here -->
+    </div>
+
+    <button class="btn btn-primary" onclick="goBack()">Back to Calculator</button>
+  </div>
+</div>
+
+<script>
+  // Sample: Receive JSON data from previous page via URL param or localStorage
+  // For demo, replace below with actual data input
+  // Example data structure based on your form output:
+  const data = JSON.parse(localStorage.getItem("chadsvascData")) || {
+    age_group: "65-74",
+    sex: "F",
+    chf: false,
+    hypertension: true,
+    diabetes: false,
+    stroke_or_tia: false,
+    vascular_disease: true,
+    derived_CHADSVASC_Score: true
+  };
+
+  const recDiv = document.getElementById("recommendations");
+
+  function generateRecommendations(data) {
+    // Clear previous
+    recDiv.innerHTML = "";
+
+    if (!data.derived_CHADSVASC_Score) {
+      // Score < 2: no DOAC treatment indicated
+      recDiv.innerHTML = `<p class="recommendation warning">No DOAC treatment indicated based on CHA₂DS₂-VASc score.</p>`;
+      return;
+    }
+
+    // Score >= 2: show DOAC treatment options based on rules (simplified example)
+
+    // Example logic: suggest doses based on age group (simplified)
+    let eliquisDose = "2x 5mg";
+    if (["75-80", ">=80"].includes(data.age_group)) {
+      eliquisDose = "2x 2.5mg";
+    }
+
+    // Xarelto dose example (could be refined with more input)
+    let xareltoDose = "20 mg";
+
+    // Recommendations output
+    let html = `
+      <p class="recommendation positive">DOAC treatment indicated.</p>
+      <p><strong>Eliquis recommended dose:</strong> ${eliquisDose}</p>
+      <p><strong>Xarelto recommended dose:</strong> ${xareltoDose}</p>
+      <p><strong>Additional considerations:</strong></p>
+      <ul>
+        <li>Consider PPI therapy</li>
+        <li>Consultation with hematology</li>
+        <li>Peak level control monitoring</li>
+      </ul>
+    `;
+
+    recDiv.innerHTML = html;
+  }
+
+  generateRecommendations(data);
+
+  function goBack() {
+    // Return to your previous page - adjust URL as needed
+    window.location.href = "chadsvasc_calculator.html";
+  }
+</script>
+</body>
+</html>

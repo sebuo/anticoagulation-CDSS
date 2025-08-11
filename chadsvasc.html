@@ -148,36 +148,79 @@
     });
 
     function calculateScore() {
-      let score = 0;
+  // Map radio buttons for age group to string
+  const ageMap = {
+    "age1": "<18",
+    "age2": "18-64",
+    "age3": "65-74",
+    "age4": "75-80",
+    "age5": ">=80"
+  };
 
-      // Get selected age value
-      const ageRadio = document.querySelector('input[name="age"]:checked');
-      score += ageRadio ? parseInt(ageRadio.value) : 0;
+  // Get selected age radio id
+  const ageRadio = document.querySelector('input[name="age"]:checked');
+  const age_group = ageRadio ? ageMap[ageRadio.id] : null;
 
-      // Get selected sex value
-      const sexRadio = document.querySelector('input[name="sex"]:checked');
-      score += sexRadio ? parseInt(sexRadio.value) : 0;
+  // Get sex char
+  const sexRadio = document.querySelector('input[name="sex"]:checked');
+  let sex = null;
+  if (sexRadio) {
+    sex = sexRadio.id === "male" ? "M" : "F";
+  }
 
-      // Conditions
-      score += document.getElementById("congestiveHF").checked ? 1 : 0;
-      score += document.getElementById("hypertension").checked ? 1 : 0;
-      score += document.getElementById("diabetes").checked ? 1 : 0;
-      score += document.getElementById("strokeTIA").checked ? 2 : 0;
-      score += document.getElementById("vascularDisease").checked ? 1 : 0;
+  // Booleans for conditions
+  const chf = document.getElementById("congestiveHF").checked;
+  const hypertension = document.getElementById("hypertension").checked;
+  const diabetes = document.getElementById("diabetes").checked;
+  const stroke_or_tia = document.getElementById("strokeTIA").checked;
+  const vascular_disease = document.getElementById("vascularDisease").checked;
 
-      // Display score
-      document.getElementById("scoreResult").innerText = score;
+  // Calculate numeric score (for display and logic)
+  let score = 0;
+  score += (ageRadio ? parseInt(ageRadio.value) : 0);
+  score += sex === "F" ? 1 : 0;
+  score += chf ? 1 : 0;
+  score += hypertension ? 1 : 0;
+  score += diabetes ? 1 : 0;
+  score += stroke_or_tia ? 2 : 0;
+  score += vascular_disease ? 1 : 0;
 
-      // Treatment advice
-      const adviceElem = document.getElementById("treatmentAdvice");
-      if (score < 2) {
-        adviceElem.textContent = "No DOAK treatment indicated";
-        adviceElem.className = "advice-green";
-      } else {
-        adviceElem.textContent = "Continue with contraindication assessment";
-        adviceElem.className = "advice-red";
-      }
-    }
+  // Derived boolean for DOAC indication (true if score >= 2)
+  const derived_CHADSVASC_Score = score >= 2;
+
+  // Show score and advice (existing)
+  document.getElementById("scoreResult").innerText = score;
+  const adviceElem = document.getElementById("treatmentAdvice");
+  if (score < 2) {
+    adviceElem.textContent = "No DOAK treatment indicated";
+    adviceElem.className = "advice-green";
+  } else {
+    adviceElem.textContent = "Continue with contraindication assessment";
+    adviceElem.className = "advice-red";
+  }
+
+  // Compose JSON object for output / sending to next page
+  const chadsvascData = {
+    age_group: age_group,
+    sex: sex,
+    chf: chf,
+    hypertension: hypertension,
+    diabetes: diabetes,
+    stroke_or_tia: stroke_or_tia,
+    vascular_disease: vascular_disease,
+    derived_CHADSVASC_Score: derived_CHADSVASC_Score
+  };
+
+  // Show JSON in textarea or console (for testing)
+  const jsonOutputElem = document.getElementById("jsonOutput");
+  if (jsonOutputElem) {
+    jsonOutputElem.value = JSON.stringify(chadsvascData, null, 2);
+  } else {
+    console.log(chadsvascData);
+  }
+
+  return chadsvascData;
+}
 
   </script>
 </body>
