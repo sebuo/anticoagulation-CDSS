@@ -1,0 +1,32 @@
+Patient information: Here the basic patient information is imported
+- if age < 18: go to treatment_recommendation.html --> show 'consult hematology' 
+- else: go to chadsvasc.html
+
+chadsvasc.html: Here the indication for DOAC is calculated
+- answers of previous assessment should be shown for: age_group AND sex
+- if score <2: go to treatment_recommendation.html --> show 'no anticoagulation based on CHADSVASC-score of 'X' points indicated
+- if score >=2 and GFR != '<15': go to contraindications.html
+- if score >= 2 and GFR = '<15': go to treatment_recommendation.html: show 'consult hematology'
+
+contraindications.html: Here the absolute contraindications for DOACs are assessed
+- only show checkbox 'pregnant or breastfeeding' if sex = 'F', else: 'pregnant or breastfeeding' = False and is hidden
+- if derived_absolute_contraindication > 0: go to treatment_recommendation.html --> show 'Marcoumar, usage of DOAC is contraindicated'
+- if derived_absolute_contraindication = 0: go to interactions.html
+
+interactions.html: Assess whether or not drugs need further assessment and/or therapy additional to DOAC
+- Aspirin and Clopidogrel derive a new variable 'derived_dual_antiplatelet_therapy', this is True when both Aspirin and Clopidogrel are True
+- If 'interacting drugs' is true show on same html: 'Calculate risk factors for increased bleeding tendency due to drug-drug interaction.'
+-- blend in 'HAS-BLED' Questions
+-- answers of previous assessment should be shown for: age, GFR, Weight, Stroke_or_Tia
+-- Uncontrolled Hypertension should be unchecked if Hypertension-variable is False
+-- Calculate HASBLED, if score >= 3 then 'HASBLED_RF_Calc': True; else: False
+- Calculcate derived_riskfactor_calculated with 'derived_age_RF', 'derived_GFR_RF', 'NSAID','HASBLED_RF_Calc'
+- Go To treatment_recommendation.html
+
+treatment_recommendation.html
+- if no contraindication:
+-- Show 'Eliquis 2x2.5mg' if age >= 80, weight <= 60 or Krea >= 133; else: 'Eliquis 2x5mg'
+-- Show 'Xarelto 1x15mg' if 'Aspirin' = True OR 'Clopidogrel' = True OR 'GFR'>=30 And 'GFR'<50
+-- Show 'Consult Hematology': if GFR>15 and GFR <=29
+-- Show 'PPI recommendation' if derived_PPI_indication = True
+-- Show 'peak level control' if derived_riskfactor_calculated >= 2
