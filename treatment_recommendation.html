@@ -23,6 +23,7 @@
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 0.25rem;
+    display: none; /* hidden by default, will show the correct box */
   }
   .recommendation {
     font-weight: bold;
@@ -42,24 +43,17 @@
   <div class="card p-4">
     <h2 class="mb-4 text-center">DOAC Treatment Recommendations</h2>
 
-    <div id="infoBoxes" class="mb-4">
-      <!-- Info boxes about meds and notes -->
-      <div class="info-box">
-        <strong>Eliquis (Apixaban):</strong><br />
-        2x 5mg or 2x 2.5mg daily
-      </div>
-      <div class="info-box">
-        <strong>Xarelto (Rivaroxaban):</strong><br />
-        20 mg, 15 mg or 10 mg daily
-      </div>
-      <div class="info-box">
-        <strong>Additional Notes:</strong><br />
-        Consider PPI therapy, Consultation hematology, Peak level control
-      </div>
+    <div id="eliquisBox" class="info-box">
+      <strong>Eliquis (Apixaban):</strong><br />
+      2x 5mg or 2x 2.5mg daily
     </div>
-
-    <div id="recommendations" class="mb-4">
-      <!-- Treatment recommendations appear here -->
+    <div id="xareltoBox" class="info-box">
+      <strong>Xarelto (Rivaroxaban):</strong><br />
+      20 mg, 15 mg or 10 mg daily
+    </div>
+    <div id="consultationBox" class="info-box">
+      <strong>Consultation Required:</strong><br />
+      Consultation with hematology is recommended due to reduced kidney function or contraindications.
     </div>
 
     <button class="btn btn-primary" onclick="goBack()">Back to Calculator</button>
@@ -67,9 +61,7 @@
 </div>
 
 <script>
-  // Sample: Receive JSON data from previous page via URL param or localStorage
-  // For demo, replace below with actual data input
-  // Example data structure based on your form output:
+  // Example data loaded from localStorage or defaults for demo
   const data = JSON.parse(localStorage.getItem("chadsvascData")) || {
     age_group: "65-74",
     sex: "F",
@@ -78,52 +70,85 @@
     diabetes: false,
     stroke_or_tia: false,
     vascular_disease: true,
-    derived_CHADSVASC_Score: true
+    derived_CHADSVASC_Score: true,
+    GFR: "30-49",        // Possible: "<15", "15-29", "30-49", ">=50"
+    Aspirin: false,
+    Clopidogrel: false
   };
 
-  const recDiv = document.getElementById("recommendations");
+  const eliquisBox = document.getElementById("eliquisBox");
+  const xareltoBox = document.getElementById("xareltoBox");
+  const consultationBox = document.getElementById("consultationBox");
 
-  function generateRecommendations(data) {
-    // Clear previous
-    recDiv.innerHTML = "";
+  function displayRecommendation(data) {
+    // Hide all initially
+    eliquisBox.style.display = "none";
+    xareltoBox.style.display = "none";
+    consultationBox.style.display = "none";
 
     if (!data.derived_CHADSVASC_Score) {
-      // Score < 2: no DOAC treatment indicated
-      recDiv.innerHTML = `<p class="recommendation warning">No DOAC treatment indicated based on CHA₂DS₂-VASc score.</p>`;
+      consultationBox.innerHTML = `<strong>No DOAC treatment indicated based on CHA₂DS₂-VASc score.</strong>`;
+      consultationBox.style.display = "block";
       return;
     }
 
-    // Score >= 2: show DOAC treatment options based on rules (simplified example)
+    const hasInteraction = data.Aspirin || data.Clopidogrel;
 
-    // Example logic: suggest doses based on age group (simplified)
-    let eliquisDose = "2x 5mg";
-    if (["75-80", ">=80"].includes(data.age_group)) {
-      eliquisDose = "2x 2.5mg";
+    // If severe renal failure contraindicated or GFR <15
+    if (data.GFR === "<15") {
+      consultationBox.innerHTML = `<strong>Contraindicated:</strong><br />Severe renal failure - DOACs are generally contraindicated.`;
+      consultationBox.style.display = "block";
+      return;
     }
 
-    // Xarelto dose example (could be refined with more input)
-    let xareltoDose = "20 mg";
+    // If consultation needed (GFR 15-29)
+    if (data.GFR === "15-29") {
+      consultationBox.style.display = "block";
+      return;
+    }
 
-    // Recommendations output
-    let html = `
-      <p class="recommendation positive">DOAC treatment indicated.</p>
-      <p><strong>Eliquis recommended dose:</strong> ${eliquisDose}</p>
-      <p><strong>Xarelto recommended dose:</strong> ${xareltoDose}</p>
-      <p><strong>Additional considerations:</strong></p>
-      <ul>
-        <li>Consider PPI therapy</li>
-        <li>Consultation with hematology</li>
-        <li>Peak level control monitoring</li>
-      </ul>
-    `;
+    // No interactions → show Eliquis AND Xarelto options (both)
+    if (!hasInteraction) {
+      // Adjust Eliquis dose by age group
+      if (["75-80", ">=80"].includes(data.age_group)) {
+        eliquisBox.innerHTML = `<strong>Eliquis (Apixaban):</strong><br />2x 2.5mg daily (age ≥ 75)`;
+      } else {
+        eliquisBox.innerHTML = `<strong>Eliquis (Apixaban):</strong><br />2x 5mg daily`;
+      }
+      eliquisBox.style.display = "block";
 
-    recDiv.innerHTML = html;
+      // Adjust Xarelto dose by GFR
+      if (data.GFR === ">=50") {
+        xareltoBox.innerHTML = `<strong>Xarelto (Rivaroxaban):</strong><br />20 mg daily`;
+      } else if (data.GFR === "30-49") {
+        xareltoBox.innerHTML = `<strong>Xarelto (Rivaroxaban):</strong><br />15 mg daily`;
+      } else {
+        xareltoBox.style.display = "none"; // fallback safety
+      }
+      xareltoBox.style.display = "block";
+
+      return;
+    }
+
+    // Interactions present (Aspirin or Clopidogrel) → show only Xarelto dose with special logic
+    if (hasInteraction) {
+      if (data.GFR === ">=50") {
+        xareltoBox.innerHTML = `<strong>Xarelto (Rivaroxaban):</strong><br />20 mg daily`;
+        xareltoBox.style.display = "block";
+      } else if (data.GFR === "30-49") {
+        xareltoBox.innerHTML = `<strong>Xarelto (Rivaroxaban):</strong><br />15 mg or 20 mg daily (consult hematology for final dosing)`;
+        xareltoBox.style.display = "block";
+      } else {
+        // For any other GFR, fall back to consultation box
+        consultationBox.style.display = "block";
+      }
+      return;
+    }
   }
 
-  generateRecommendations(data);
+  displayRecommendation(data);
 
   function goBack() {
-    // Return to your previous page - adjust URL as needed
     window.location.href = "chadsvasc_calculator.html";
   }
 </script>
