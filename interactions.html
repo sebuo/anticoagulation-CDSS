@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOAC–PPI Interaction: Questionnaire</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #121821;
+      --ink: #e8eef6;
+      --muted: #a7b4c6;
+      --accent: #3aa0ff;
+      --danger: #ff5a5a;
+      --ok: #3cc071;
+      --border: #223045;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--ink); background: radial-gradient(1200px 800px at 70% -20%, #17304f44, transparent), var(--bg);
+      display: grid; place-items: start center; padding: 2rem;
+    }
+    .container { width: 100%; max-width: 860px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; letter-spacing: 0.2px; }
+    p.desc { color: var(--muted); margin: 0 0 1rem; }
+    form { display: grid; gap: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; }
+    .check {
+      display: flex; gap: 0.6rem; align-items: start; padding: 0.9rem; border: 1px solid var(--border); border-radius: 12px;
+      background: #0f141d; transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .check:has(input:checked) { border-color: var(--accent); background: #0e2036; }
+    .check input { width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; }
+    .check label { font-weight: 600; }
+    .muted { color: var(--muted); font-weight: 500; }
+    .derived, .result { border-top: 1px dashed var(--border); padding-top: 1rem; margin-top: 0.25rem; display: grid; gap: 0.6rem; }
+    .kv { display: grid; grid-template-columns: 280px 1fr; gap: 0.6rem; align-items: center; }
+    .badge { display: inline-block; padding: 0.25rem 0.55rem; border-radius: 999px; border: 1px solid var(--border); font-weight: 700; letter-spacing: 0.2px; }
+    .badge.ok { background: #0f2518; border-color: #1f5d3e; color: #bdf2d1; }
+    .badge.warn { background: #2a1212; border-color: #7a2c2c; color: #ffd6d6; }
+    .explain { color: var(--muted); line-height: 1.4; }
+    .controls { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+    button { border: 1px solid var(--border); background: #0f141d; color: var(--ink); padding: 0.65rem 0.9rem; border-radius: 10px; cursor: pointer; font-weight: 600; }
+    button:hover { border-color: var(--accent); }
+    .foot { color: var(--muted); font-size: 0.9rem; margin-top: 0.75rem; }
+    code { background: #0a0f15; padding: 0.15rem 0.35rem; border-radius: 6px; border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>DOAC–PPI Interaction: Questionnaire</h1>
+      <p class="desc">Inputs are boolean checkboxes. Derived variables and the recommendation compute instantly on change.</p>
+
+      <form id="form">
+        <div class="grid" role="group" aria-labelledby="meds-legend">
+          <div class="check">
+            <input type="checkbox" id="aspirin" name="aspirin" />
+            <div>
+              <label for="aspirin">Aspirin (ASS)</label>
+              <div class="muted">Patient takes Aspirin (ASS)</div>
+            </div>
+          </div>
+
+          <div class="check">
+            <input type="checkbox" id="clopidogrel" name="clopidogrel" />
+            <div>
+              <label for="clopidogrel">Clopidogrel</label>
+              <div class="muted">Patient takes Clopidogrel</div>
+            </div>
+          </div>
+
+          <div class="check">
+            <input type="checkbox" id="nsaid" name="nsaid" />
+            <div>
+              <label for="nsaid">NSAID</label>
+              <div class="muted">Patient takes NSAIDs</div>
+            </div>
+          </div>
+
+          <div class="check">
+            <input type="checkbox" id="ssri" name="ssri" />
+            <div>
+              <label for="ssri">SSRI or SNRI</label>
+              <div class="muted">Patient takes an SSRI or SNRI</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="derived" aria-live="polite">
+          <div class="kv"><div><strong>derived_dual_antiplatelet_therapy</strong></div><div><span id="dualBadge" class="badge">False</span></div></div>
+          <div class="kv"><div><strong>derived_PPI_indication</strong></div><div><span id="ppiBadge" class="badge">False</span></div></div>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <div class="kv">
+            <div><strong>PPI Recommendation</strong></div>
+            <div>
+              <span id="ppiRec" class="badge ok">Not Recommended</span>
+            </div>
+          </div>
+          <div id="explain" class="explain"></div>
+          <div class="controls">
+            <button type="button" id="resetBtn" title="Clear all inputs">Reset</button>
+          </div>
+          <div class="foot">Spec Rule: <code>True if one of {'dual_antiplatelet_therapy','NSAID','SSRI_or_SNRI'} is true</code>.</div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const el = (id) => document.getElementById(id);
+      const aspirinEl = el('aspirin');
+      const clopidogrelEl = el('clopidogrel');
+      const nsaidEl = el('nsaid');
+      const ssriEl = el('ssri');
+      const dualBadge = el('dualBadge');
+      const ppiBadge = el('ppiBadge');
+      const ppiRec = el('ppiRec');
+      const explain = el('explain');
+      const resetBtn = el('resetBtn');
+
+      function compute() {
+        const aspirin = !!aspirinEl.checked;
+        const clopidogrel = !!clopidogrelEl.checked;
+        const nsaid = !!nsaidEl.checked;
+        const ssri = !!ssriEl.checked;
+
+        const dual = aspirin && clopidogrel; // derived_dual_antiplatelet_therapy
+
+        // Rule: True if one of following is true: dual, nsaid, ssri
+        const ppiInd = dual || nsaid || ssri;
+
+        // Update UI
+        dualBadge.textContent = dual ? 'True' : 'False';
+        dualBadge.className = 'badge ' + (dual ? 'warn' : '');
+
+        ppiBadge.textContent = ppiInd ? 'True' : 'False';
+        ppiBadge.className = 'badge ' + (ppiInd ? 'warn' : '');
+
+        ppiRec.textContent = ppiInd ? 'PPI Recommended' : 'Not Recommended';
+        ppiRec.className = 'badge ' + (ppiInd ? 'warn' : 'ok');
+
+        const reasons = [];
+        if (dual) reasons.push('dual antiplatelet therapy');
+        if (nsaid) reasons.push('NSAID');
+        if (ssri) reasons.push('SSRI/SNRI');
+
+        explain.innerHTML = `Inputs true: <strong>${reasons.length}</strong> [${reasons.join(', ') || 'none'}].`;
+      }
+
+      function reset() {
+        for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl]) cb.checked = false;
+        compute();
+      }
+
+      for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl]) {
+        cb.addEventListener('change', compute);
+      }
+      resetBtn.addEventListener('click', reset);
+
+      // initial render
+      compute();
+    })();
+  </script>
+</body>
+</html>
