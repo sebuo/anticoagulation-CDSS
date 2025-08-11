@@ -21,9 +21,10 @@
       color: var(--ink); background: radial-gradient(1200px 800px at 70% -20%, #17304f44, transparent), var(--bg);
       display: grid; place-items: start center; padding: 2rem;
     }
-    .container { width: 100%; max-width: 860px; }
+    .container { width: 100%; max-width: 980px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
     h1 { font-size: 1.5rem; margin: 0 0 0.5rem; letter-spacing: 0.2px; }
+    h2 { font-size: 1.15rem; margin: 1rem 0 0.35rem; }
     p.desc { color: var(--muted); margin: 0 0 1rem; }
     form { display: grid; gap: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; }
@@ -35,7 +36,7 @@
     .check input { width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; }
     .check label { font-weight: 600; }
     .muted { color: var(--muted); font-weight: 500; }
-    .derived, .result { border-top: 1px dashed var(--border); padding-top: 1rem; margin-top: 0.25rem; display: grid; gap: 0.6rem; }
+    .section { border-top: 1px dashed var(--border); padding-top: 1rem; margin-top: 0.25rem; display: grid; gap: 0.6rem; }
     .kv { display: grid; grid-template-columns: 280px 1fr; gap: 0.6rem; align-items: center; }
     .badge { display: inline-block; padding: 0.25rem 0.55rem; border-radius: 999px; border: 1px solid var(--border); font-weight: 700; letter-spacing: 0.2px; }
     .badge.ok { background: #0f2518; border-color: #1f5d3e; color: #bdf2d1; }
@@ -46,15 +47,19 @@
     button:hover { border-color: var(--accent); }
     .foot { color: var(--muted); font-size: 0.9rem; margin-top: 0.75rem; }
     code { background: #0a0f15; padding: 0.15rem 0.35rem; border-radius: 6px; border: 1px solid var(--border); }
+    details { border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 0.9rem; background: #0f141d; }
+    details[open] { background: #0e2036; border-color: var(--accent); }
+    summary { cursor: pointer; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
       <h1>DOAC–PPI Interaction: Questionnaire</h1>
-      <p class="desc">Inputs are boolean checkboxes. Derived variables and the recommendation compute instantly on change.</p>
+      <p class="desc">Boolean inputs. Derived variables and recommendation compute instantly.</p>
 
       <form id="form">
+        <!-- Base meds -->
         <div class="grid" role="group" aria-labelledby="meds-legend">
           <div class="check">
             <input type="checkbox" id="aspirin" name="aspirin" />
@@ -89,12 +94,13 @@
           </div>
         </div>
 
-        <div class="derived" aria-live="polite">
+        <!-- Derived + Recommendation -->
+        <div class="section" aria-live="polite">
           <div class="kv"><div><strong>derived_dual_antiplatelet_therapy</strong></div><div><span id="dualBadge" class="badge">False</span></div></div>
           <div class="kv"><div><strong>derived_PPI_indication</strong></div><div><span id="ppiBadge" class="badge">False</span></div></div>
         </div>
 
-        <div class="result" aria-live="polite">
+        <div class="section" aria-live="polite">
           <div class="kv">
             <div><strong>PPI Recommendation</strong></div>
             <div>
@@ -102,11 +108,57 @@
             </div>
           </div>
           <div id="explain" class="explain"></div>
-          <div class="controls">
-            <button type="button" id="resetBtn" title="Clear all inputs">Reset</button>
-          </div>
-          <div class="foot">Spec Rule: <code>True if one of {'dual_antiplatelet_therapy','NSAID','SSRI_or_SNRI'} is true</code>.</div>
+          <div class="foot">Rule: <code>derived_PPI_indication = (dual_antiplatelet_therapy OR NSAID OR SSRI_or_SNRI)</code>.</div>
         </div>
+
+        <!-- Additional interacting drugs (trigger block) -->
+        <div class="section">
+          <h2>Additional interacting drugs</h2>
+          <p class="muted">If any is checked, we evaluate three risk gates (hardcoded values) and may expand a HAS-BLED form.</p>
+          <div class="grid">
+            <div class="check"><input type="checkbox" id="amiodaron"><label for="amiodaron">amiodaron</label></div>
+            <div class="check"><input type="checkbox" id="chinidin"><label for="chinidin">chinidin</label></div>
+            <div class="check"><input type="checkbox" id="dronedaron"><label for="dronedaron">dronedaron</label></div>
+            <div class="check"><input type="checkbox" id="diltiazem"><label for="diltiazem">diltiazem</label></div>
+            <div class="check"><input type="checkbox" id="verapamil"><label for="verapamil">verapamil</label></div>
+            <div class="check"><input type="checkbox" id="erythromycin"><label for="erythromycin">erythromycin</label></div>
+            <div class="check"><input type="checkbox" id="naproxen"><label for="naproxen">naproxen</label></div>
+            <div class="check"><input type="checkbox" id="fluconazol"><label for="fluconazol">fluconazol</label></div>
+            <div class="check"><input type="checkbox" id="ciclosporin"><label for="ciclosporin">ciclosporin</label></div>
+            <div class="check"><input type="checkbox" id="tacrolimus"><label for="tacrolimus">tacrolimus</label></div>
+          </div>
+
+          <div class="section" id="riskGates" hidden>
+            <div class="kv"><div><strong>Trigger active</strong></div><div><span id="drugTriggerBadge" class="badge">False</span></div></div>
+            <div class="kv"><div><strong>Hardcoded inputs</strong></div><div class="muted">age=60; weight=60; GFR=50</div></div>
+            <div class="kv"><div>age ≥ 75</div><div><span id="ageGate" class="badge">False</span></div></div>
+            <div class="kv"><div>GFR &lt; 50</div><div><span id="gfrGate" class="badge">False</span></div></div>
+            <div class="kv"><div>weight ≤ 60</div><div><span id="wtGate" class="badge">False</span></div></div>
+            <div class="kv"><div><strong>Any gate true</strong></div><div><span id="anyGate" class="badge">False</span></div></div>
+          </div>
+        </div>
+
+        <!-- HAS-BLED expandable stub -->
+        <details id="hasBledBlock" hidden>
+          <summary>HAS-BLED Score (stub)</summary>
+          <div class="section">
+            <p class="muted">Auto-expanded when an interacting drug is present and any risk gate is true. Scoring logic to be implemented.</p>
+            <div class="grid">
+              <div class="check"><input type="checkbox" id="hb-hypertension"><label for="hb-hypertension">Uncontrolled Hypertension (SBP > 160mmhg) </label></div>
+              <div class="check"><input type="checkbox" id="hb-abnormal"><label for="hb-abnormal">Abnormal renal/liver</label></div>
+              <div class="check"><input type="checkbox" id="hb-stroke"><label for="hb-stroke">Stroke history</label></div>
+              <div class="check"><input type="checkbox" id="hb-bleeding"><label for="hb-bleeding">Bleeding history</label></div>
+              <div class="check"><input type="checkbox" id="hb-labile-inr" disabled><label for="hb-labile-inr">Labile INR (N/A for DOAC)</label></div>
+              <div class="check"><input type="checkbox" id="hb-elderly"><label for="hb-elderly">Elderly (&gt;65)</label></div>
+              <div class="check"><input type="checkbox" id="hb-drugs"><label for="hb-drugs">Drugs/alcohol</label></div>
+            </div>
+          </div>
+        </details>
+
+        <div class="controls">
+          <button type="button" id="resetBtn" title="Clear all inputs">Reset</button>
+        </div>
+
       </form>
     </div>
   </div>
@@ -114,26 +166,43 @@
   <script>
     (function() {
       const el = (id) => document.getElementById(id);
+      // Base inputs
       const aspirinEl = el('aspirin');
       const clopidogrelEl = el('clopidogrel');
       const nsaidEl = el('nsaid');
       const ssriEl = el('ssri');
+      // Badges
       const dualBadge = el('dualBadge');
       const ppiBadge = el('ppiBadge');
       const ppiRec = el('ppiRec');
       const explain = el('explain');
+
+      // Interacting drugs list
+      const drugIds = ['amiodaron','chinidin','dronedaron','diltiazem','verapamil','erythromycin','naproxen','fluconazol','ciclosporin','tacrolimus'];
+      const drugBoxes = drugIds.map(id => el(id));
+      const riskGates = el('riskGates');
+      const drugTriggerBadge = el('drugTriggerBadge');
+      const ageGate = el('ageGate');
+      const gfrGate = el('gfrGate');
+      const wtGate = el('wtGate');
+      const anyGate = el('anyGate');
+      const hasBledBlock = el('hasBledBlock');
+
       const resetBtn = el('resetBtn');
 
-      function compute() {
+      // Hardcoded inputs as requested
+      const age = 60;     // TODO: wire real input later
+      const weight = 60;  // TODO: wire real input later
+      const gfr = 50;     // TODO: wire real input later
+
+      function computeBase() {
         const aspirin = !!aspirinEl.checked;
         const clopidogrel = !!clopidogrelEl.checked;
         const nsaid = !!nsaidEl.checked;
         const ssri = !!ssriEl.checked;
 
         const dual = aspirin && clopidogrel; // derived_dual_antiplatelet_therapy
-
-        // Rule: True if one of following is true: dual, nsaid, ssri
-        const ppiInd = dual || nsaid || ssri;
+        const ppiInd = dual || nsaid || ssri; // final rule
 
         // Update UI
         dualBadge.textContent = dual ? 'True' : 'False';
@@ -149,22 +218,72 @@
         if (dual) reasons.push('dual antiplatelet therapy');
         if (nsaid) reasons.push('NSAID');
         if (ssri) reasons.push('SSRI/SNRI');
-
         explain.innerHTML = `Inputs true: <strong>${reasons.length}</strong> [${reasons.join(', ') || 'none'}].`;
       }
 
-      function reset() {
-        for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl]) cb.checked = false;
-        compute();
+      function computeDrugTriggers() {
+        const anyDrug = drugBoxes.some(cb => cb && cb.checked);
+        // Show/Hide risk gate panel
+        riskGates.hidden = !anyDrug;
+
+        if (!anyDrug) {
+          drugTriggerBadge.textContent = 'False';
+          drugTriggerBadge.className = 'badge';
+          ageGate.textContent = 'False'; ageGate.className = 'badge';
+          gfrGate.textContent = 'False'; gfrGate.className = 'badge';
+          wtGate.textContent = 'False'; wtGate.className = 'badge';
+          anyGate.textContent = 'False'; anyGate.className = 'badge';
+          // Collapse HAS-BLED if not triggered by drugs
+          hasBledBlock.hidden = true; hasBledBlock.open = false;
+          return;
+        }
+
+        // Evaluate gates with hardcoded values
+        const ageTrue = age >= 75;
+        const gfrTrue = gfr < 50;
+        const wtTrue = weight <= 60;
+        const anyTrue = ageTrue || gfrTrue || wtTrue;
+
+        drugTriggerBadge.textContent = 'True';
+        drugTriggerBadge.className = 'badge warn';
+
+        ageGate.textContent = ageTrue ? 'True' : 'False';
+        ageGate.className = 'badge ' + (ageTrue ? 'warn' : '');
+        gfrGate.textContent = gfrTrue ? 'True' : 'False';
+        gfrGate.className = 'badge ' + (gfrTrue ? 'warn' : '');
+        wtGate.textContent = wtTrue ? 'True' : 'False';
+        wtGate.className = 'badge ' + (wtTrue ? 'warn' : '');
+        anyGate.textContent = anyTrue ? 'True' : 'False';
+        anyGate.className = 'badge ' + (anyTrue ? 'warn' : '');
+
+        // Expand HAS-BLED if any gate true
+        if (anyTrue) {
+          hasBledBlock.hidden = false;
+          hasBledBlock.open = true;
+        } else {
+          hasBledBlock.hidden = true;
+          hasBledBlock.open = false;
+        }
       }
 
-      for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl]) {
-        cb.addEventListener('change', compute);
+      function computeAll() {
+        computeBase();
+        computeDrugTriggers();
+      }
+
+      function reset() {
+        for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl, ...drugBoxes]) cb && (cb.checked = false);
+        computeAll();
+      }
+
+      // Listeners
+      for (const cb of [aspirinEl, clopidogrelEl, nsaidEl, ssriEl, ...drugBoxes]) {
+        cb && cb.addEventListener('change', computeAll);
       }
       resetBtn.addEventListener('click', reset);
 
-      // initial render
-      compute();
+      // Initial render
+      computeAll();
     })();
   </script>
 </body>
