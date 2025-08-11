@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Patient Registration - Clinical Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .container {
+      max-width: 600px;
+      margin-top: 50px;
+    }
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .info-icon {
+      cursor: pointer;
+      color: #0d6efd;
+      margin-left: 6px;
+    }
+    .form-check-inline {
+      margin-right: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card p-4">
+      <h2 class="mb-4 text-center">Patient Registration</h2>
+      <form id="patientForm">
+
+        <!-- Age Group -->
+        <div class="mb-3">
+          <label class="form-label">Age Group</label>
+          <span
+            class="info-icon"
+            data-bs-toggle="tooltip"
+            title="Categorized age group"
+            >&#9432;</span
+          >
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="age_group"
+                id="age_lt18"
+                value="<18"
+                required
+              />
+              <label class="form-check-label" for="age_lt18">&lt;18</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="age_group"
+                id="age_18_64"
+                value="18-64"
+              />
+              <label class="form-check-label" for="age_18_64">18-64</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="age_group"
+                id="age_65_74"
+                value="65-74"
+              />
+              <label class="form-check-label" for="age_65_74">65-74</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="age_group"
+                id="age_75_80"
+                value="75-80"
+              />
+              <label class="form-check-label" for="age_75_80">75-80</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="age_group"
+                id="age_gte80"
+                value=">=80"
+              />
+              <label class="form-check-label" for="age_gte80">&ge;80</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sex -->
+        <div class="mb-3">
+          <label class="form-label">Sex</label>
+          <span
+            class="info-icon"
+            data-bs-toggle="tooltip"
+            title="Biological sex of the patient"
+            >&#9432;</span
+          >
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="sex"
+                id="sex_male"
+                value="M"
+                required
+              />
+              <label class="form-check-label" for="sex_male">Male</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="sex"
+                id="sex_female"
+                value="F"
+              />
+              <label class="form-check-label" for="sex_female">Female</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weight Under 60 kg -->
+        <div class="mb-3">
+          <label class="form-label">
+            Weight &le; 60 kg
+            <span
+              class="info-icon"
+              data-bs-toggle="tooltip"
+              title="Is the patient's weight less or equal to 60 kilograms?"
+              >&#9432;</span
+            >
+          </label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="weight_under_60"
+                id="weight_yes"
+                value="true"
+                required
+              />
+              <label class="form-check-label" for="weight_yes">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="weight_under_60"
+                id="weight_no"
+                value="false"
+              />
+              <label class="form-check-label" for="weight_no">No</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- GFR -->
+        <div class="mb-3">
+          <label class="form-label">
+            GFR (glomerular filtration rate)
+            <span
+              class="info-icon"
+              data-bs-toggle="tooltip"
+              title="GFR range to assess kidney function"
+              >&#9432;</span
+            >
+          </label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="GFR"
+                id="gfr_lt15"
+                value="<15"
+                required
+              />
+              <label class="form-check-label" for="gfr_lt15">&lt;15</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="GFR"
+                id="gfr_15_29"
+                value="15-29"
+              />
+              <label class="form-check-label" for="gfr_15_29">15-29</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="GFR"
+                id="gfr_30_49"
+                value="30-49"
+              />
+              <label class="form-check-label" for="gfr_30_49">30-49</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="GFR"
+                id="gfr_gte50"
+                value=">=50"
+              />
+              <label class="form-check-label" for="gfr_gte50">&ge;50</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kreatinin -->
+        <div class="mb-3">
+          <label class="form-label">
+            Kreatinin (µmol/l)
+            <span
+              class="info-icon"
+              data-bs-toggle="tooltip"
+              title="Creatinine value in micromol per liter"
+              >&#9432;</span
+            >
+          </label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="Kreatinin"
+                id="kreat_lt133"
+                value="<133"
+                required
+              />
+              <label class="form-check-label" for="kreat_lt133">&lt;133 µmol/l</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="Kreatinin"
+                id="kreat_gte133"
+                value=">=133"
+              />
+              <label class="form-check-label" for="kreat_gte133">&ge;133 µmol/l</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+  <script>
+    // Enable Bootstrap tooltips
+    document.addEventListener("DOMContentLoaded", function () {
+      var tooltipTriggerList = [].slice.call(
+        document.querySelectorAll("[data-bs-toggle='tooltip']")
+      );
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
+
+    // Example form submit handler
+    document.getElementById("patientForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Gather data
+      const formData = new FormData(e.target);
+      const data = {
+        age_group: formData.get("age_group"),
+        sex: formData.get("sex"),
+        weight_under_60: formData.get("weight_under_60") === "true",
+        GFR: formData.get("GFR"),
+        Kreatinin: formData.get("Kreatinin"),
+      };
+
+      console.log("Form Data Submitted:", data);
+      alert("Patient data submitted! Check console for details.");
+      // Here you could send data to backend or next processing step
+    });
+  </script>
+</body>
+</html>
