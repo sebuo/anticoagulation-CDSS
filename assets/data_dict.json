@@ -19,7 +19,6 @@
     },
     {
         "Field Name": "chf",
-        "UID": "1",
         "Data Type": "bool",
         "Description": "History of congestive heart failure or left ventricular dysfunction",
         "Allowed Values": "True, False",
