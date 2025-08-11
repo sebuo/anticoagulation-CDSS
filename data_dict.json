@@ -1,0 +1,345 @@
+[
+    {
+        "Field Name": "age_group",
+        "Data Type": "string",
+        "Description": "Categorized age group ",
+        "Allowed Values": "'<18', '18-64', '65-74', '75-80','>=80'",
+        "Example": "65-74",
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "sex",
+        "Data Type": "char(1)",
+        "Description": "Biological sex of the patient",
+        "Allowed Values": "'M' (Male), 'F' (Female)",
+        "Example": "F",
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "chf",
+        "UID": "1",
+        "Data Type": "bool",
+        "Description": "History of congestive heart failure or left ventricular dysfunction",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "hypertension",
+        "Data Type": "bool",
+        "Description": "History of hypertension",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "diabetes",
+        "Data Type": "bool",
+        "Description": "History of diabetes mellitus",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "stroke_or_tia",
+        "Data Type": "bool",
+        "Description": "History of stroke, transient ischemic attack, or thromboembolism",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "vascular_disease",
+        "Data Type": "bool",
+        "Description": "History of vascular disease (myocardial infarction, peripheral artery disease, aortic plaque)",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "CHADSVASC",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "derived_CHADSVASC-Score",
+        "Data Type": "bool",
+        "Description": "Derived Result from CHADS-VASC Questionaire",
+        "Allowed Values": "True (when count >=2), False",
+        "Example": false,
+        "BPMN Task": "Decision logik for DOAC-Indication",
+        "Rule Logik": "True when answer_count >=2"
+    },
+    {
+        "Field Name": "GFR",
+        "Data Type": "string",
+        "Description": "GFR range to assess kidney function",
+        "Allowed Values": "'<15', '15-29', '30-49', '>=50'",
+        "Example": ">=50",
+        "BPMN Task": "Used through entire flow",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "Kreatinin",
+        "Data Type": "string",
+        "Description": "Kreatinin value in µmol/l",
+        "Allowed Values": "'<133 µmol/l', '>= 133 µmol/l'",
+        "Example": "<133µmol/l",
+        "BPMN Task": "Eliquis dosis",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "ci_renal_failure",
+        "Data Type": "bool",
+        "Description": "Derived variable based on GFR",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "If GFR <15, then True, else False"
+    },
+    {
+        "Field Name": "ci_active_bleeding",
+        "Data Type": "bool",
+        "Description": "Clinically relevant active bleeding",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "ci_liver_failure_child_c_or_coagulopathy",
+        "Data Type": "bool",
+        "Description": "Liver function deficiency CHILD C or liver disease with coagulopathy",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "ci_gi_ulcus_active",
+        "Data Type": "bool",
+        "Description": "Active gastrointestinal ulcer",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "ci_pregnant_or_breastfeeding",
+        "Data Type": "bool",
+        "Description": "Patient is pregnant or breastfeeding",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "ci_endocarditis",
+        "Data Type": "bool",
+        "Description": "Patient has acute bacterial endocarditis",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "derived_ci_age",
+        "Data Type": "bool",
+        "Description": "Derived variable, Patient is <18 years old",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Derived from 'age_group', True if age_group = <18"
+    },
+    {
+        "Field Name": "ci_drugs",
+        "Data Type": "bool",
+        "Description": "Patient is taking any of the following interacting drugs: rifampicin, carbamazepin, phenobarbital, phenytoin, St. John's wort, HIV-Protease inhibitor, azol-antimycotic, clarithromycin",
+        "Allowed Values": "'rifampicin', 'carbamazepin', 'phenobarbital', 'phenytoin', 'St. John's wort', 'HIV-Protease inhibitor', 'azol-antimycotic', 'clarithromycin'",
+        "Example": false,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "If >=1 CI-Medications is true, then variable = true"
+    },
+    {
+        "Field Name": "derived_absolute_contraindication",
+        "Data Type": "bool",
+        "Description": "Derived variable, if >= 1 contraindication is true, then patient is not allowed to take DOAC",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Assess Contraindications",
+        "Rule Logik": "Check if at least one of following is true: ci_renal_failure, ci_active_bleeding, ci_liver_failure_child_c_or_coagulopathy, ci_gi_ulcus_active, ci_pregnant_or_breastfeeding, ci_endocarditis, ci_age, ci_drugs"
+    },
+    {
+        "Field Name": "Aspirin",
+        "Data Type": "bool",
+        "Description": "Patient takes Aspirin (ASS)",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Interaction",
+        "Rule Logik": "Only one answer possible"
+    },
+    {
+        "Field Name": "Clopidogrel",
+        "Data Type": "bool",
+        "Description": "Patient takes Clopidogrel",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Interaction",
+        "Rule Logik": "Only one answer possible"
+    },
+    {
+        "Field Name": "NSAID",
+        "Data Type": "bool",
+        "Description": "Patient takes NAIDs",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Interaction",
+        "Rule Logik": "Only one answer possible"
+    },
+    {
+        "Field Name": "SSRI_or_SNRI",
+        "Data Type": "bool",
+        "Description": "Patient takes an SSRI or SNRI",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Interaction",
+        "Rule Logik": "Only one answer possible"
+    },
+    {
+        "Field Name": "derived_dual_antiplatelet_therapy",
+        "Data Type": "bool",
+        "Description": "Derived variable if patient is on dual antiplatelet therapy (combination of ASS and clopidogrel)",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Interaction",
+        "Rule Logik": "True if 'Aspirin' AND 'Clopidogrel' is true"
+    },
+    {
+        "Field Name": "derived_PPI_indication",
+        "Data Type": "bool",
+        "Description": "Derived variable, Recommend additional PPI therapy if True",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "PPI Indication",
+        "Rule Logik": "True if one of following true: 'dual_antiplatelet_therapy', 'NSAID', 'SSRI_or_SNRI'"
+    },
+    {
+        "Field Name": "weight_under_60",
+        "Data Type": "bool",
+        "Description": "Is weight of patient <= 60 kg",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Dose Eliquis, Peak level monitoring",
+        "Rule Logik": "Only one answer is possible, True if weight of Patient <= 60 kg"
+    },
+    {
+        "Field Name": "interacting drugs",
+        "Data Type": "bool",
+        "Description": "Patient takes at least one of following drugs: amiodaron, chinidin, dronedaron, diltiazem, verapamil, erythromycin, naproxen, fluconazol, ciclosporin, tacrolimus",
+        "Allowed Values": "'amiodaron', 'chinidin', 'dronedaron', 'diltiazem', 'verapamil', 'erythromycin', 'naproxen', 'fluconazol', 'ciclosporin', 'tacrolimus'",
+        "Example": true,
+        "BPMN Task": "Assess Risk factors",
+        "Rule Logik": "If >= 1 is True, then calculate risk_factors"
+    },
+    {
+        "Field Name": "derived_age_RF",
+        "Data Type": "bool",
+        "Description": "Age is in age group 75-80 or >= 80",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "Calculate risk factors",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "derived_GFR_RF",
+        "Data Type": "bool",
+        "Description": "Derived from GFR",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN TASK": "Calculate risk factors",
+        "Rule Logik": "If variable 'GFR' = '>= 50', then derived_GFR_RF = 'False'"
+    },
+    {
+        "Field Name": "derived_riskfactor_calculated",
+        "Data Type": "bool",
+        "Description": "Calculates risk factors for peak level monitoring indication: 'derived_age_RF', 'derived_GFR_RF', 'Aspirin', 'Clopidogrel', 'NSAID','HASBLED'",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Calculate risk factors",
+        "Rule Logik": "True if >=2 riskfactors are True"
+    },
+    {
+        "Field Name": "hasbled_hypertension",
+        "Data Type": "bool",
+        "Description": "Uncontrolled hypertension (SBP > 160 mmHg), only ask if 'hypertension' = True",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible, only ask if 'hypertension' = True, else 'hasbled_hypertension' = False"
+    },
+    {
+        "Field Name": "hasbled_renal",
+        "Data Type": "bool",
+        "Description": "Abnormal renal function (dialysis, transplant, creatinine > 200 μmol/L)",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "hasbled_liver",
+        "Data Type": "bool",
+        "Description": "Abnormal liver function (chronic liver disease or cirrhosis)",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "hasbled_bleeding",
+        "Data Type": "bool",
+        "Description": "History of major bleeding or predisposition to bleeding",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "hasbled_labile_inr",
+        "Data Type": "bool",
+        "Description": "Unstable or high INR",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "derived_hasbled_elderly",
+        "Data Type": "bool",
+        "Description": "Age > 65 years",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "True if age_group = '65-74' OR '75-79' OR '>=80'"
+    },
+    {
+        "Field Name": "hasbled_drugs_alcohol",
+        "Data Type": "bool",
+        "Description": "Use of drugs increasing bleeding risk or alcohol abuse",
+        "Allowed Values": "True, False",
+        "Example": true,
+        "BPMN Task": "HASBLED_RF_Calc",
+        "Rule Logik": "Only one answer is possible"
+    },
+    {
+        "Field Name": "HASBLED_RF_Calc",
+        "Data Type": "bool",
+        "Description": "derives rf calculation from other variables: 'hasbled_hypertension', 'hasbled_renal', 'hasbled_liver', 'stroke_or_tia', 'hasbled_bleeding', 'hasbled_labile_inr', 'derived_hasbled_elderly', 'hasbled_drugs_alcohol'",
+        "Allowed Values": "True, False",
+        "Example": false,
+        "BPMN Task": "Calculate risk factors",
+        "Rule Logik": "True if Score >= 3"
+    }
+]
