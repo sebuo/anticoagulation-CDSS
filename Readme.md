@@ -19,6 +19,13 @@ The tool is implemented as a set of HTML/JavaScript pages that collect relevant 
 - [ ] ⁠Stroke history is predefined by chadsvasc- [ ]score input
 - [ ] ⁠Elderly is predefined by age input
 - [ ] ⁠Rewrite HAS-BLED score with correct wording
+- [ ] age < 18 direkte weiteerleitung fehlt but shown in contraindications
+- [ ] kreatinine field passt nicht mit limits im data dictionary
+- [ ] chadsvasc button nicht korrekt gerrendert
+- [ ] weiterleitung von page 1 funktioniert nur, wenn alles ausgefüllt! Wichtig! Was wenn nicht alle werte Verfügbar?
+- [ ] readd info buttons?
+- [ ] If any is checked, we evaluate three risk gates (from Patient step) and may expand a HAS-BLED form. Sound like additional work the way it is statet. -->Bias?
+- [ ] if age = 120 year once the age grouping worked, once not --> keep an eye on it (mostly worked)
 
 ## Features
 
