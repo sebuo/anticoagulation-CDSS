@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  build: {
-    outDir: '../page',
-  }
+    base: '/anticoagulation-CDSS/',
+    build: {
+        outDir: '../docs',
+        emptyOutDir: true
+
+    }
 });
