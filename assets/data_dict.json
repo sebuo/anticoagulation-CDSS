@@ -1,5 +1,50 @@
 [
     {
+        "Field Name": "age",
+        "Data Type": "integer",
+        "Description": "Patient age",
+        "Allowed Values": "0-120",
+        "Example": "65",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "Any integer number in rage 0-120 is possible"
+    },
+    {
+        "Field Name": "Patient name",
+        "Data Type": "string",
+        "Description": "Patient name",
+        "Allowed Values": "any",
+        "Example": "Richi",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "A string without whitespace"
+    },
+    {
+        "Field Name": "Patient weight",
+        "Data Type": "integer",
+        "Description": "Weight of patient",
+        "Allowed Values": "0-300",
+        "Example": "75",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "Any integer number in rage 0-300 is possible"
+    },
+    {
+        "Field Name": "Patient Kreatinin",
+        "Data Type": "integer",
+        "Description": "Kreatinin (µmol/l)",
+        "Allowed Values": "30-120",
+        "Example": "90",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "Any integer number in rage 30-120 is possible"
+    },
+    {
+        "Field Name": "Patient GFR",
+        "Data Type": "integer",
+        "Description": "GFR value of patient",
+        "Allowed Values": "0-120",
+        "Example": "90",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "Any integer number in rage 0-120 is possible"
+    },
+    {
         "Field Name": "age_group",
         "Data Type": "string",
         "Description": "Categorized age group ",
