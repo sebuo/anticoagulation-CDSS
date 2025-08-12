@@ -11,6 +11,8 @@ export function initContraindicationsStep(formEl, state){
   function computeDerivedFlags(){
     const age = getAge();
     const gfr = getGFR();
+// a constant is a variable; container that stores a value which can’t be reassigned later
+// if variable age is not null: if age < 18; then True, else (:) False
     const derived_ci_age = age != null ? (age < 18) : false;
     const ci_renal_failure = gfr != null ? (gfr < 15) : false;
     state.contraindications.derived_ci_age = derived_ci_age;
@@ -33,6 +35,8 @@ export function initContraindicationsStep(formEl, state){
   }
 
   function currentReasons(){
+    // This adds all contraindications to the constant reasons
+    // We could add this to utils, since contraindication aga and renal failure are seen in patient_information
     const reasons = [];
     if(state.contraindications.derived_ci_age) reasons.push('Patient is under 18 years old');
     if(state.contraindications.ci_renal_failure) reasons.push('Renal failure (GFR < 15)');
@@ -46,12 +50,15 @@ export function initContraindicationsStep(formEl, state){
   }
 
   function computeCI(){
+    // if element doesn't exist --> !node
+    // !! akes sure a value is a boolean
     ['ci_active_bleeding','ci_endocarditis','ci_gi_ulcus_active','ci_liver_failure_child_c_or_coagulopathy','ci_pregnant_or_breastfeeding','ci_drugs'].forEach(id => {
       const node = el(id); if(!node) return; state.contraindications[id] = !!node.checked;
     });
     computeDerivedFlags();
     const reasons = currentReasons();
     const derived_absolute_contraindication = reasons.length > 0;
+    // Save state.contraindications.derived_absolute_contraindication to true if length of the list resons > 0
     state.contraindications.derived_absolute_contraindication = derived_absolute_contraindication;
     const box = el('ciResult');
     if(box){
@@ -65,7 +72,7 @@ export function initContraindicationsStep(formEl, state){
     }
   }
 
-  function showCIJson(){
+  function showCIJson(){ // shows the payload, could be deleted later
     computeCI();
     const data = {
       ci_active_bleeding: !!el('ci_active_bleeding')?.checked,
