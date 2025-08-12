@@ -4,6 +4,22 @@ This project is a browser-based clinical decision support system (CDSS) designed
 
 The tool is implemented as a set of HTML/JavaScript pages that collect relevant patient information, apply clinical logic, and display therapy recommendations. Data is transferred between pages using JSON objects stored in `localStorage`, ensuring a smooth user flow without the need for a backend server.
 
+## *Todos*
+
+- [ ] Patient Name: First and Lastname, so whitespace allowed
+- [ ] ⁠Limitation: we do not check if combination age and weight is possible
+- [ ] ⁠Limitation: We do not check if GFR is correct according to weight and krea.
+- [ ] ⁠Krea max: 1000 (Akute dialysepflicht, lebensbedrohlich)
+- [ ] ⁠Krea logik ist > oder < 133, darf jedoch nicht eingegeben werden
+- [ ] ⁠CHADSVASC: Age_group ändern in age. nicht gruppe anzeigen. Age_group kann aktuell noch geändert werden.
+- [ ] ⁠Pre-existing conditions: Does your patient have one or more of following conditions? check all which apply.
+- [ ] ⁠Contraindications: your patient has an elevated CHADSVASC-score, indicating that anticoagulation is needed.
+- [ ] ⁠Drug interactions: As one list. Does your patient take one or more of following medications. please check all which apply.
+- [ ] ⁠Uncontrolled Hypertension should only be able to be checked if hypertension (found in chadsvasc) is true, else it is always false.
+- [ ] ⁠Stroke history is predefined by chadsvasc- [ ]score input
+- [ ] ⁠Elderly is predefined by age input
+- [ ] ⁠Rewrite HAS-BLED score with correct wording
+
 ## Features
 
 - Interactive UI with radio buttons, dropdowns, and checkboxes for easy data entry  
