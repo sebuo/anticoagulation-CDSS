@@ -14,7 +14,7 @@ export function deriveAgeGroupFromNumeric(age){
   if(a < 18) return '<18';
   if(a <= 64) return '18-64';
   if(a <= 74) return '65-74';
-  if(a <= 80) return '75-80';
+  if(a < 80) return '75-79';
   return '>=80';
 }
 
