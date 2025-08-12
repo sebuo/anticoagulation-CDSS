@@ -2,34 +2,42 @@ import { INTERACTING_DRUG_IDS } from '../constants.js';
 
 export function initInteractionsStep(formEl, state){
   const el = (id) => formEl.querySelector(`#${id}`);
-  const badge = (id) => formEl.querySelector(`#${id}`);
+
+  // ---- None-of-the-above mutual exclusivity ----
+  const NONE_ID = 'none';
+  const BASE_MED_IDS = ['aspirin','clopidogrel','nsaid','ssri'];
+  const ALL_MED_IDS = [...BASE_MED_IDS, ...INTERACTING_DRUG_IDS];
+
+  function enforceNoneExclusivity(evt){
+    const noneCb = el(NONE_ID);
+    if(!noneCb) return;
+    const targetId = evt?.target?.id;
+
+    if(targetId === NONE_ID && noneCb.checked){
+      ALL_MED_IDS.forEach(id => { const cb = el(id); if(cb) cb.checked = false; });
+      return;
+    }
+    if(ALL_MED_IDS.includes(targetId)){
+      const cb = el(targetId);
+      if(cb?.checked) noneCb.checked = false;
+    }
+  }
+  // ----------------------------------------------
 
   function computeInteractionsBase(){
-    const aspirin = !!el('aspirin')?.checked;
-    const clopidogrel = !!el('clopidogrel')?.checked;
-    const nsaid = !!el('nsaid')?.checked;
-    const ssri = !!el('ssri')?.checked;
+    const none = !!el(NONE_ID)?.checked;
 
-    const dual = aspirin && clopidogrel; // derived_dual_antiplatelet_therapy
-    const ppiInd = dual || nsaid || ssri; // final rule
+    const aspirin = !none && !!el('aspirin')?.checked;
+    const clopidogrel = !none && !!el('clopidogrel')?.checked;
+    const nsaid = !none && !!el('nsaid')?.checked;
+    const ssri = !none && !!el('ssri')?.checked;
 
-    const dualBadge = badge('dualBadge');
-    const ppiBadge = badge('ppiBadge');
-    const ppiRec = badge('ppiRec');
-    const explain = badge('explain');
-    if(dualBadge){ dualBadge.textContent = dual ? 'True' : 'False'; }
-    if(ppiBadge){ ppiBadge.textContent = ppiInd ? 'True' : 'False'; }
-    if(ppiRec){ ppiRec.textContent = ppiInd ? 'PPI Recommended' : 'Not Recommended'; }
-    if(explain){
-      const reasons = [];
-      if(dual) reasons.push('dual antiplatelet therapy');
-      if(nsaid) reasons.push('NSAID');
-      if(ssri) reasons.push('SSRI/SNRI');
-      explain.innerHTML = `Inputs true: <strong>${reasons.length}</strong> [${reasons.join(', ') || 'none'}].`;
-    }
+    const dual = aspirin && clopidogrel;           // derived_dual_antiplatelet_therapy
+    const ppiInd = dual || nsaid || ssri;          // kept in state only
 
     state.interactions = {
       ...state.interactions,
+      None_of_the_above: none,
       Aspirin: aspirin,
       Clopidogrel: clopidogrel,
       NSAID: nsaid,
@@ -40,76 +48,101 @@ export function initInteractionsStep(formEl, state){
   }
 
   function computeInteractionsTriggers(){
-    const drugBoxes = INTERACTING_DRUG_IDS.map(id => el(id));
-    const anyDrug = drugBoxes.some(cb => cb && cb.checked);
-    const riskGates = el('riskGates');
-    const drugTriggerBadge = badge('drugTriggerBadge');
-    const ageGate = badge('ageGate');
-    const gfrGate = badge('gfrGate');
-    const wtGate = badge('wtGate');
-    const anyGate = badge('anyGate');
-    const gateInputs = badge('gateInputs');
-    const hasBledBlock = el('hasBledBlock');
-
     const selectedDrugs = INTERACTING_DRUG_IDS.filter(id => el(id)?.checked);
     state.interactions.interacting_drug_list = selectedDrugs;
     state.interactions['interacting drugs'] = selectedDrugs.length > 0;
-
-    if(riskGates){ riskGates.hidden = !anyDrug; }
-
-    if(!anyDrug){
-      if(drugTriggerBadge) { drugTriggerBadge.textContent = 'False'; }
-      if(ageGate) { ageGate.textContent = 'False'; }
-      if(gfrGate) { gfrGate.textContent = 'False'; }
-      if(wtGate) { wtGate.textContent = 'False'; }
-      if(anyGate) { anyGate.textContent = 'False'; }
-      if(hasBledBlock){ hasBledBlock.hidden = true; hasBledBlock.open = false; }
-      state.interactions.derived_age_RF = false;
-      state.interactions.derived_GFR_RF = false;
-      state.interactions.weight_under_60 = false;
-      state.interactions.any_gate_true = false;
-      return;
-    }
-
-    const age = Number(state.patient.age);
-    const weight = Number(state.patient.patient_weight);
-    const gfr = Number(state.patient.patient_gfr);
-    if(gateInputs){ gateInputs.textContent = `Inputs: age=${age}; weight=${weight}; GFR=${gfr}`; }
-
-    const ageTrue = age >= 75;
-    const gfrTrue = gfr < 50;
-    const wtTrue = weight <= 60;
-    const anyTrue = ageTrue || gfrTrue || wtTrue;
-
-    if(drugTriggerBadge){ drugTriggerBadge.textContent = 'True'; }
-    if(ageGate){ ageGate.textContent = ageTrue ? 'True' : 'False'; }
-    if(gfrGate){ gfrGate.textContent = gfrTrue ? 'True' : 'False'; }
-    if(wtGate){ wtGate.textContent = wtTrue ? 'True' : 'False'; }
-    if(anyGate){ anyGate.textContent = anyTrue ? 'True' : 'False'; }
-
-    state.interactions.derived_age_RF = ageTrue;
-    state.interactions.derived_GFR_RF = gfrTrue === true;
-    state.interactions.weight_under_60 = wtTrue;
-    state.interactions.any_gate_true = anyTrue;
-
-    if(hasBledBlock){
-      if(anyTrue){ hasBledBlock.hidden = false; hasBledBlock.open = true; }
-      else { hasBledBlock.hidden = true; hasBledBlock.open = false; }
-    }
   }
+
+  // ---- HAS-BLED ----
+  function computeHasBled(){
+    // Read checkboxes
+    const hbHypertension = !!el('hb-hypertension')?.checked;
+    const hbRenal       = !!el('hb-renal')?.checked;
+    const hbLiver       = !!el('hb-liver')?.checked;
+    const hbBleeding    = !!el('hb-bleeding')?.checked;
+    const hbDrugs       = !!el('hb-drugs')?.checked;
+    const hbAlcohol     = !!el('hb-alcohol')?.checked;
+    const hbLabileINR = !!el('hb-labile-inr')?.checked;
+
+    // Derived from state
+    const age = Number(state?.patient?.age);
+    const elderly = Number.isFinite(age) && age >= 65;
+
+    // Source stroke history from CHADS-VASc (support common keys conservatively)
+    const cv = state?.chadsvasc || {};
+    const strokeFromChads =
+        !!(cv.stroke_TIA || cv.strokeTIA || cv.stroke || cv.TIA || cv.priorStroke || cv.prior_TIA);
+
+    // Update read-only badges
+    const elderlyBadge = el('hb-elderly-badge');
+    if(elderlyBadge) elderlyBadge.textContent = elderly ? 'True' : 'False';
+
+    const strokeBadge = el('hb-stroke-badge');
+    if(strokeBadge) strokeBadge.textContent = strokeFromChads ? 'True' : 'False';
+
+    // Score components (1 point each)
+    const components = [
+      ['Hypertension', hbHypertension],
+      ['Renal disease', hbRenal],
+      ['Liver disease', hbLiver],
+      ['Stroke history', strokeFromChads],
+      ['Bleeding history', hbBleeding],
+      ['Labile INR', hbLabileINR],
+      ['Elderly (65+)', elderly],
+      ['Drugs (antiplatelets/NSAIDs)', hbDrugs],
+      ['Alcohol use', hbAlcohol],
+    ];
+
+    const total = components.reduce((acc, [_, v]) => acc + (v ? 1 : 0), 0);
+
+    const scoreEl = el('hb-score');
+    if(scoreEl) scoreEl.textContent = String(total);
+
+    const breakdownEl = el('hb-breakdown');
+    if(breakdownEl){
+      const active = components.filter(([,v]) => v).map(([k]) => k);
+      breakdownEl.textContent = active.length ? `Contributors: ${active.join(', ')}` : 'Contributors: none';
+    }
+
+    // Persist in state
+    state.hasbled = {
+      hypertension_uncontrolled: hbHypertension,
+      renal_disease: hbRenal,
+      liver_disease: hbLiver,
+      stroke_history: strokeFromChads,
+      bleeding_history: hbBleeding,
+      labile_inr: false,
+      elderly_65_plus: elderly,
+      drugs_antiplatelets_nsaids: hbDrugs,
+      alcohol_use: hbAlcohol,
+      total_score: total,
+    };
+  }
+  // ------------------
 
   function computeInteractionsAll(){
     computeInteractionsBase();
     computeInteractionsTriggers();
+    computeHasBled();
   }
 
-  formEl.addEventListener('change', computeInteractionsAll);
+  formEl.addEventListener('change', (evt) => {
+    enforceNoneExclusivity(evt);
+    computeInteractionsAll();
+  });
+
   const resetBtn = el('resetInteractions');
   if(resetBtn){
     resetBtn.addEventListener('click', () => {
-      ['aspirin','clopidogrel','nsaid','ssri', ...INTERACTING_DRUG_IDS].forEach(id => { const cb = el(id); if(cb) cb.checked = false; });
+      [NONE_ID, ...ALL_MED_IDS,
+        'hb-hypertension','hb-renal','hb-liver','hb-bleeding','hb-drugs','hb-alcohol'
+      ].forEach(id => { const cb = el(id); if(cb) cb.checked = false; });
       computeInteractionsAll();
     });
+  }
+
+  if(el(NONE_ID)?.checked){
+    ALL_MED_IDS.forEach(id => { const cb = el(id); if(cb) cb.checked = false; });
   }
 
   computeInteractionsAll();

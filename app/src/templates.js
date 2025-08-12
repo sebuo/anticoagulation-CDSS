@@ -1,5 +1,5 @@
 export const TEMPLATES = {
-  0: () => /*html*/`
+    0: () => /*html*/`
       <fieldset>
         <legend>Patient Information</legend>
         <div class="grid cols-2">
@@ -28,7 +28,7 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-  1: () => /*html*/`
+    1: () => /*html*/`
       <fieldset>
         <legend>CHA<sub>2</sub>DS<sub>2</sub>-VASc</legend>
 
@@ -66,7 +66,7 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-  2: () => /*html*/`
+    2: () => /*html*/`
       <fieldset>
         <legend>Contraindications</legend>
         <p class="instructions"><strong>Please tick all contraindications present for this patient. Multiple selections allowed.</strong></p>
@@ -107,81 +107,67 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-  3: () => /*html*/`
+    3: () => /*html*/`
       <fieldset>
-        <legend>Drug Interactions & PPI Indication</legend>
-        <p class="help">Boolean inputs. Derived variables and recommendation compute instantly.</p>
-
-        <!-- Base meds -->
-        <div class="grid cols-2" role="group" aria-label="Base meds">
-          <label class="inline checkbox"><input type="checkbox" id="aspirin" name="aspirin" /> Aspirin (ASS) <span class="help">Patient takes Aspirin (ASS)</span></label>
-          <label class="inline checkbox"><input type="checkbox" id="clopidogrel" name="clopidogrel" /> Clopidogrel <span class="help">Patient takes Clopidogrel</span></label>
-          <label class="inline checkbox"><input type="checkbox" id="nsaid" name="nsaid" /> NSAID <span class="help">Patient takes NSAIDs</span></label>
-          <label class="inline checkbox"><input type="checkbox" id="ssri" name="ssri" /> SSRI or SNRI <span class="help">Patient takes an SSRI or SNRI</span></label>
-        </div>
-
-        <!-- Derived + Recommendation -->
-        <div class="notice" aria-live="polite" id="ppiDerivedBox" style="margin-top:10px">
-          <div>derived_dual_antiplatelet_therapy: <span id="dualBadge" class="badge">False</span></div>
-          <div>derived_PPI_indication: <span id="ppiBadge" class="badge">False</span></div>
-        </div>
-
-        <div class="notice ok" aria-live="polite" id="ppiRecBox" style="margin-top:10px">
-          <div><strong>PPI Recommendation</strong> <span id="ppiRec" class="badge">Not Recommended</span></div>
-          <div id="explain" class="help"></div>
-          <div class="help">Rule: <code>derived_PPI_indication = (dual_antiplatelet_therapy OR NSAID OR SSRI_or_SNRI)</code>.</div>
-        </div>
-
-        <!-- Additional interacting drugs (trigger block) -->
-        <div style="margin-top:10px">
-          <h3>Additional interacting drugs</h3>
-          <p class="help">If any is checked, we evaluate three risk gates (from Patient step) and may expand a HAS-BLED form.</p>
-          <div class="grid cols-2">
-            <label class="inline checkbox"><input type="checkbox" id="amiodaron" name="amiodaron"> amiodaron</label>
-            <label class="inline checkbox"><input type="checkbox" id="chinidin" name="chinidin"> chinidin</label>
-            <label class="inline checkbox"><input type="checkbox" id="dronedaron" name="dronedaron"> dronedaron</label>
-            <label class="inline checkbox"><input type="checkbox" id="diltiazem" name="diltiazem"> diltiazem</label>
-            <label class="inline checkbox"><input type="checkbox" id="verapamil" name="verapamil"> verapamil</label>
-            <label class="inline checkbox"><input type="checkbox" id="erythromycin" name="erythromycin"> erythromycin</label>
-            <label class="inline checkbox"><input type="checkbox" id="naproxen" name="naproxen"> naproxen</label>
-            <label class="inline checkbox"><input type="checkbox" id="fluconazol" name="fluconazol"> fluconazol</label>
-            <label class="inline checkbox"><input type="checkbox" id="ciclosporin" name="ciclosporin"> ciclosporin</label>
-            <label class="inline checkbox"><input type="checkbox" id="tacrolimus" name="tacrolimus"> tacrolimus</label>
+        <legend>Drug-drug Interactions</legend>
+    
+        <!-- All medications in one list -->
+        <div class="medications">
+          <div class="grid cols-2" role="group" aria-label="Medications">
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="aspirin" name="aspirin" /> Aspirin (ASS)</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="clopidogrel" name="clopidogrel" /> Clopidogrel</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="nsaid" name="nsaid" /> NSAID</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="ssri" name="ssri" /> SSRI or SNRI</label>
+    
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="amiodaron" name="amiodaron"> amiodaron</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="chinidin" name="chinidin"> chinidin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="dronedaron" name="dronedaron"> dronedaron</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="diltiazem" name="diltiazem"> diltiazem</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="verapamil" name="verapamil"> verapamil</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="erythromycin" name="erythromycin"> erythromycin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="naproxen" name="naproxen"> naproxen</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="fluconazol" name="fluconazol"> fluconazol</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="ciclosporin" name="ciclosporin"> ciclosporin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="tacrolimus" name="tacrolimus"> tacrolimus</label>
           </div>
-
-          <div class="notice" id="riskGates" hidden style="margin-top:10px">
-            <div>Trigger active: <span id="drugTriggerBadge" class="badge">False</span></div>
-            <div class="help" id="gateInputs">Inputs: age=—; weight=—; GFR=—</div>
-            <div>age ≥ 75: <span id="ageGate" class="badge">False</span></div>
-            <div>GFR &lt; 50: <span id="gfrGate" class="badge">False</span></div>
-            <div>weight ≤ 60: <span id="wtGate" class="badge">False</span></div>
-            <div><strong>Any gate true</strong>: <span id="anyGate" class="badge">False</span></div>
+    
+          <!-- None of the above -->
+          <div style="margin-top:10px">
+            <label class="inline checkbox"><input type="checkbox" id="none" name="none"> None of the above</label>
           </div>
         </div>
-
-        <!-- HAS-BLED expandable stub -->
-        <details id="hasBledBlock" hidden style="margin-top:10px">
-          <summary>HAS-BLED Score (stub)</summary>
-          <div class="notice" style="margin-top:8px">
-            <p class="help">Auto-expanded when an interacting drug is present and any risk gate is true. Scoring logic to be implemented.</p>
-            <div class="grid cols-2">
-              <label class="inline checkbox"><input type="checkbox" id="hb-hypertension" name="hb-hypertension"> Uncontrolled Hypertension (SBP &gt; 160mmHg)</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-abnormal" name="hb-abnormal"> Abnormal renal/liver</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-stroke" name="hb-stroke"> Stroke history</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-bleeding" name="hb-bleeding"> Bleeding history</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-labile-inr" name="hb-labile-inr" disabled> Labile INR (N/A for DOAC)</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-elderly" name="hb-elderly"> Elderly (&gt;65)</label>
-              <label class="inline checkbox"><input type="checkbox" id="hb-drugs" name="hb-drugs"> Drugs/alcohol</label>
-            </div>
+    
+        <!-- HAS-BLED (always visible) -->
+        <div id="hasBled" class="notice" style="margin-top:10px">
+          <summary>HAS-BLED Score</summary>
+          <div class="grid cols-2" style="margin-top:8px">
+            <label class="inline checkbox"><input type="checkbox" id="hb-hypertension" name="hb-hypertension"> Uncontrolled Hypertension (SBP &gt; 160mmHg)</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-renal" name="hb-renal"> Renal disease</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-liver" name="hb-liver"> Liver disease</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-bleeding" name="hb-bleeding"> Bleeding history</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-labile-inr" name="hb-labile-inr"> Labile INR</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-drugs" name="hb-drugs"> Drugs (antiplatelets/NSAIDs)</label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-alcohol" name="hb-alcohol"> Alcohol use</label>
           </div>
-        </details>
-
+          <div style="margin-top:8px">
+            <div>Elderly (65+): <span id="hb-elderly-badge" class="badge">False</span></div>
+            <div>Stroke history: <span id="hb-stroke-badge" class="badge">False</span></div>
+          </div>
+    
+          <!-- Score (bottom) -->
+          <div style="margin-top:10px">
+            <strong>Total HAS-BLED:</strong> <span id="hb-score" class="badge">0</span>
+          </div>
+          <div id="hb-breakdown" style="margin-top:6px;"></div>
+        </div>
+    
         <div class="nav">
           <button type="button" id="resetInteractions" class="btn secondary" title="Clear Interactions step only">Reset</button>
         </div>
       </fieldset>
     `,
-  4: () => /*html*/`
+
+    4: () => /*html*/`
       <fieldset>
         <legend>Treatment Recommendation</legend>
         <div id="summary"></div>
