@@ -1,32 +1,65 @@
 export const TEMPLATES = {
-    0: () => /*html*/`
-      <fieldset>
-        <legend>Patient Information</legend>
-        <div class="grid cols-2">
-          <label class="label">Patient Name
-            <input class="input" type="text" name="patient_name" pattern="\\S+" placeholder="e.g., Richi" required />
-            <div class="help">No whitespace allowed</div>
-          </label>
-          <label class="label">Age
-            <input class="input" type="number" name="age" min="0" max="120" inputmode="numeric" required />
-            <div class="help">0–120 years</div>
-          </label>
-        </div>
-        <div class="grid cols-3">
-          <label class="label">Weight (kg)
-            <input class="input" type="number" name="patient_weight" min="0" max="300" inputmode="numeric" required />
-            <div class="help">0–300 kg</div>
-          </label>
-          <label class="label">Kreatinin (µmol/l)
-            <input class="input" type="number" name="patient_kreatinin" min="30" max="120" inputmode="numeric" required />
-            <div class="help">30–120 µmol/l</div>
-          </label>
-          <label class="label">GFR
-            <input class="input" type="number" name="patient_gfr" min="0" max="120" inputmode="numeric" required />
-            <div class="help">0–120</div>
-          </label>
-        </div>
-      </fieldset>
+  0: () => /*html*/`
+    <fieldset>
+  <legend>Patient Information</legend>
+
+  <!-- Row 1: First Name, Last Name -->
+  <div class="grid cols-2">
+    <label class="label">First Name
+      <input class="input" type="text" name="first_name" pattern="\S+" placeholder="e.g., Richi" required />
+    </label>
+    <label class="label">Last Name
+      <input class="input" type="text" name="last_name" pattern="\S+" placeholder="e.g., Meier" required />
+    </label>
+  </div>
+
+  <!-- Row 2: Age, Weight -->
+  <div class="grid cols-2">
+    <label class="label">Age
+      <input class="input" type="number" name="age" min="0" max="120" inputmode="numeric" required />
+      <div class="help">0–120 years</div>
+    </label>
+    <label class="label">Weight (kg)
+      <input class="input" type="number" name="patient_weight" min="0" max="300" inputmode="numeric" required />
+      <div class="help">0–300 kg</div>
+    </label>
+  </div>
+
+  <!-- Row 3: Creatinine, GFR -->
+<div class="grid cols-2">
+<label class="label">Creatinine (µmol/l)
+  <div class="creatinine-container">
+    <input class="input" type="number" name="patient_kreatinin" min="30" max="120" inputmode="numeric" required />
+    <button 
+      type="button" 
+      id="creatinine-info-btn" 
+      style="border: none; background: none; cursor: pointer; font-size: 1.2em;">
+      ℹ️
+    </button>
+    <div id="creatinine-info-box">
+      If creatinine is above 1000 µmol/l, please enter 1000.
+    </div>
+  </div>
+  <div class="help">0–1000 µmol/l</div>
+</label>
+
+  <label class="label">GFR (ml/min)
+    <input class="input" type="number" name="patient_gfr" min="0" max="120" inputmode="numeric" required />
+    <div class="help">0–120</div>
+  </label>
+
+<!-- Hidden info box -->
+<div id="creatinine-info-box" 
+     style="display:none; background:#eef6ff; padding:10px; border:1px solid #007bff; border-radius:5px; margin-top:5px; max-width:250px;">
+  If creatinine is above 1000 µmol/l, please enter 1000.
+</div>
+
+<script>
+  document.getElementById("creatinine-info-btn").addEventListener("click", function() {
+    const infoBox = document.getElementById("creatinine-info-box");
+    infoBox.style.display = infoBox.style.display === "none" ? "block" : "none";
+  });
+</script>
     `,
     1: () => /*html*/`
       <fieldset>
@@ -66,11 +99,10 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-    2: () => /*html*/`
+  2: () => /*html button CIJSON can be dropped*/`
       <fieldset>
         <legend>Contraindications</legend>
-        <p class="instructions"><strong>Please tick all contraindications present for this patient. Multiple selections allowed.</strong></p>
-        <p class="subnote">Some contraindications (e.g., renal failure) are assessed automatically from previous patient data.</p>
+        <p class="instructions"><strong>Does your patient have one or more of the conditions and/or medications?</strong></p>
 
         <div class="field">
           <label class="inline checkbox"><input type="checkbox" id="ci_active_bleeding" name="ci_active_bleeding" /> Active bleeding</label>
@@ -82,7 +114,7 @@ export const TEMPLATES = {
           <label class="inline checkbox"><input type="checkbox" id="ci_gi_ulcus_active" name="ci_gi_ulcus_active" /> Active gastrointestinal ulcer</label>
         </div>
         <div class="field">
-          <label class="inline checkbox"><input type="checkbox" id="ci_liver_failure_child_c_or_coagulopathy" name="ci_liver_failure_child_c_or_coagulopathy" /> Liver failure CHILD C or coagulopathy</label>
+          <label class="inline checkbox"><input type="checkbox" id="ci_liver_failure_child_c_or_coagulopathy" name="ci_liver_failure_child_c_or_coagulopathy" /> Liver failure CHILD C or liver disease with coagulopathy</label>
         </div>
         <div class="field" id="pregnantField" hidden>
           <label class="inline checkbox"><input type="checkbox" id="ci_pregnant_or_breastfeeding" name="ci_pregnant_or_breastfeeding" /> Pregnant or breastfeeding</label>
@@ -92,6 +124,9 @@ export const TEMPLATES = {
           <div class="med-info">
             Includes: rifampicin, carbamazepin, phenobarbital, phenytoin, St. John's wort, HIV-Protease inhibitor, azol-antimycotic, clarithromycin
           </div>
+        </div>
+        <div class="field">
+          <label class="inline checkbox"><input type="checkbox" id="ci_none" name="ci_none" /> None of the above</label>
         </div>
 
         <div class="nav">

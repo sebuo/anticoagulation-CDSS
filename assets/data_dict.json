@@ -11,9 +11,18 @@
     {
         "Field Name": "Patient name",
         "Data Type": "string",
-        "Description": "Patient name",
+        "Description": "First name",
         "Allowed Values": "any",
         "Example": "Richi",
+        "BPMN Task": "patient_information",
+        "Rule Logik": "A string without whitespace"
+    },
+    {
+         "Field Name": "Last name",
+        "Data Type": "string",
+        "Description": "Last name",
+        "Allowed Values": "any",
+        "Example": "Meier",
         "BPMN Task": "patient_information",
         "Rule Logik": "A string without whitespace"
     },
