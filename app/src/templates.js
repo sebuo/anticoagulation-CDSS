@@ -7,11 +7,9 @@ export const TEMPLATES = {
   <div class="grid cols-2">
     <label class="label">First Name
       <input class="input" type="text" name="first_name" pattern="\S+" placeholder="e.g., Richi" required />
-      <div class="help">No whitespace allowed</div>
     </label>
     <label class="label">Last Name
       <input class="input" type="text" name="last_name" pattern="\S+" placeholder="e.g., Meier" required />
-      <div class="help">No whitespace allowed</div>
     </label>
   </div>
 
