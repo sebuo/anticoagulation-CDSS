@@ -82,3 +82,35 @@ hr{border:0; border-top:1px solid var(--border); margin:14px 0}
   to   { opacity: 1; transform: translateY(0); }
 }
 .step-animate-in { animation: stepFadeIn 250ms ease-out; }
+
+/* Info box for creatinine */
+#creatinine-info-box {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #eef6ff;
+  padding: 10px;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  max-width: 250px;
+  color: #000;
+  font-size: 14px;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Container for creatinine input and info button to allow absolute positioning */
+.creatinine-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Show info box when button is hovered or focused */
+#creatinine-info-btn:hover + #creatinine-info-box,
+#creatinine-info-btn:focus + #creatinine-info-box {
+  display: block;
+  cursor: default;
+}

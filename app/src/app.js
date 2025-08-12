@@ -18,15 +18,38 @@ let currentStep = 0;
 function validateStep(stepIndex, dataForStep){
   switch(stepIndex){
     case 0: {
-      const required = ['patient_name','age','patient_weight','patient_kreatinin','patient_gfr'];
-      const missing = required.filter(k => dataForStep[k] === undefined || dataForStep[k] === null || dataForStep[k] === '');
-      if(missing.length){ return { ok:false, message: 'Please fill all patient fields.' }; }
-      if(!/^[^\s]+$/.test(String(dataForStep.patient_name))){ return { ok:false, message:'Patient name cannot contain whitespace.' }; }
-      const age = Number(dataForStep.age), wt=Number(dataForStep.patient_weight), cr=Number(dataForStep.patient_kreatinin), gfr=Number(dataForStep.patient_gfr);
-      if(!(age >= 0 && age <= 120)) return { ok:false, message:'Age must be between 0 and 120.' };
-      if(!(wt >= 0 && wt <= 300)) return { ok:false, message:'Weight must be between 0 and 300.' };
-      if(!(cr >= 30 && cr <= 120)) return { ok:false, message:'Kreatinin must be between 30 and 120 µmol/l.' };
-      if(!(gfr >= 0 && gfr <= 120)) return { ok:false, message:'GFR must be between 0 and 120.' };
+      const required = ['first_name', 'last_name', 'age', 'patient_weight', 'patient_kreatinin', 'patient_gfr'];
+      const missing = required.filter(k => dataForStep[k] === undefined || dataForStep[k] === null || dataForStep[k].toString().trim() === '');
+      if(missing.length){ 
+        return { ok:false, message: 'Please fill all patient fields.' }; 
+      }// Ensure that all patient fields are filled --> else print message
+
+      // Validate that first_name and last_name do not contain whitespace
+      if(!/^\S+$/.test(String(dataForStep.first_name))){ 
+        return { ok:false, message:'First name cannot contain whitespace.' }; 
+      }
+      if(!/^\S+$/.test(String(dataForStep.last_name))){ 
+        return { ok:false, message:'Last name cannot contain whitespace.' }; 
+      }
+
+      // Numeric validations to be within specified ranges
+      const age = Number(dataForStep.age);
+      const wt  = Number(dataForStep.patient_weight);
+      const cr  = Number(dataForStep.patient_kreatinin);
+      const gfr = Number(dataForStep.patient_gfr);
+
+      if(!(age >= 0 && age <= 120)) 
+        return { ok:false, message:'Age must be between 0 and 120.' };
+
+      if(!(wt >= 0 && wt <= 300)) 
+        return { ok:false, message:'Weight must be between 0 and 300.' };
+
+      if(!(cr >= 0 && cr <= 1000))  // Adjusted max creatinine to 1000 if > 1000
+        return { ok:false, message:'Creatinine must be between 0 and 1000 µmol/l.' };
+
+      if(!(gfr >= 0 && gfr <= 120)) 
+        return { ok:false, message:'GFR must be between 0 and 120 ml/min.' };
+
       return { ok:true };
     }
     case 1:
