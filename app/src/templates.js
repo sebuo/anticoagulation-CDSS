@@ -66,11 +66,10 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-  2: () => /*html*/`
+  2: () => /*html button CIJSON can be dropped*/`
       <fieldset>
         <legend>Contraindications</legend>
-        <p class="instructions"><strong>Please tick all contraindications present for this patient. Multiple selections allowed.</strong></p>
-        <p class="subnote">Some contraindications (e.g., renal failure) are assessed automatically from previous patient data.</p>
+        <p class="instructions"><strong>Does your patient have one or more of the conditions and/or medications?</strong></p>
 
         <div class="field">
           <label class="inline checkbox"><input type="checkbox" id="ci_active_bleeding" name="ci_active_bleeding" /> Active bleeding</label>
@@ -82,7 +81,7 @@ export const TEMPLATES = {
           <label class="inline checkbox"><input type="checkbox" id="ci_gi_ulcus_active" name="ci_gi_ulcus_active" /> Active gastrointestinal ulcer</label>
         </div>
         <div class="field">
-          <label class="inline checkbox"><input type="checkbox" id="ci_liver_failure_child_c_or_coagulopathy" name="ci_liver_failure_child_c_or_coagulopathy" /> Liver failure CHILD C or coagulopathy</label>
+          <label class="inline checkbox"><input type="checkbox" id="ci_liver_failure_child_c_or_coagulopathy" name="ci_liver_failure_child_c_or_coagulopathy" /> Liver failure CHILD C or liver disease with coagulopathy</label>
         </div>
         <div class="field" id="pregnantField" hidden>
           <label class="inline checkbox"><input type="checkbox" id="ci_pregnant_or_breastfeeding" name="ci_pregnant_or_breastfeeding" /> Pregnant or breastfeeding</label>
@@ -92,6 +91,9 @@ export const TEMPLATES = {
           <div class="med-info">
             Includes: rifampicin, carbamazepin, phenobarbital, phenytoin, St. John's wort, HIV-Protease inhibitor, azol-antimycotic, clarithromycin
           </div>
+        </div>
+        <div class="field">
+          <label class="inline checkbox"><input type="checkbox" id="ci_none" name="ci_none" /> None of the above</label>
         </div>
 
         <div class="nav">

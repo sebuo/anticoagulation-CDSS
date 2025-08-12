@@ -34,6 +34,94 @@ export function initContraindicationsStep(formEl, state){
     }
   }
 
+  function setupNoneCheckboxLogic() {
+    const noneCheckbox = el('ci_none');
+    const contraindicationIds = [
+      'ci_active_bleeding',
+      'ci_endocarditis',
+      'ci_gi_ulcus_active',
+      'ci_liver_failure_child_c_or_coagulopathy',
+      'ci_pregnant_or_breastfeeding',
+      'ci_drugs'
+    ].filter(id => el(id));  // only include if element exists
+  
+    if (!noneCheckbox) return;
+  
+    // When "None of the above" is changed:
+    noneCheckbox.addEventListener('change', () => {
+      if (noneCheckbox.checked) {
+        // Uncheck and disable all other checkboxes
+        contraindicationIds.forEach(id => {
+          const cb = el(id);
+          if (cb) {
+            cb.checked = false;
+            cb.disabled = true;
+          }
+        });
+      } else {
+        // Enable all other checkboxes
+        contraindicationIds.forEach(id => {
+          const cb = el(id);
+          if (cb) cb.disabled = false;
+        });
+      }
+    });
+  
+    // When any other contraindication checkbox changes:
+    contraindicationIds.forEach(id => {
+      const cb = el(id);
+      if (!cb) return;
+      cb.addEventListener('change', () => {
+        if (cb.checked) {
+          noneCheckbox.checked = false;
+          noneCheckbox.disabled = true;
+        } else {
+          // Check if all other checkboxes are unchecked, then enable "None of the above"
+          const anyChecked = contraindicationIds.some(otherId => el(otherId)?.checked);
+          if (!anyChecked) {
+            noneCheckbox.disabled = false;
+          }
+        }
+      });
+    });
+  }
+  
+  function ensureAtLeastOneSelected() {
+    const ids = [
+      'ci_active_bleeding',
+      'ci_endocarditis',
+      'ci_gi_ulcus_active',
+      'ci_liver_failure_child_c_or_coagulopathy',
+      'ci_pregnant_or_breastfeeding',
+      'ci_drugs',
+      'ci_none'
+    ].filter(id => el(id));
+  
+    const anyChecked = ids.some(id => !!el(id)?.checked);
+    const btn = el('btnCICompute');
+  
+    if (btn) btn.disabled = !anyChecked;
+  }
+  function attachAtLeastOneListeners() {
+    const ids = [
+      'ci_active_bleeding',
+      'ci_endocarditis',
+      'ci_gi_ulcus_active',
+      'ci_liver_failure_child_c_or_coagulopathy',
+      'ci_pregnant_or_breastfeeding',
+      'ci_drugs',
+      'ci_none'
+    ].filter(id => el(id));
+  
+    ids.forEach(id => {
+      const cb = el(id);
+      if (!cb) return;
+      cb.addEventListener('change', () => {
+        ensureAtLeastOneSelected();
+      });
+    });
+  }  
+
   function currentReasons(){
     // This adds all contraindications to the constant reasons
     // We could add this to utils, since contraindication aga and renal failure are seen in patient_information
@@ -52,13 +140,13 @@ export function initContraindicationsStep(formEl, state){
   function computeCI(){
     // if element doesn't exist --> !node
     // !! akes sure a value is a boolean
-    ['ci_active_bleeding','ci_endocarditis','ci_gi_ulcus_active','ci_liver_failure_child_c_or_coagulopathy','ci_pregnant_or_breastfeeding','ci_drugs'].forEach(id => {
+    ['ci_active_bleeding','ci_endocarditis','ci_gi_ulcus_active','ci_liver_failure_child_c_or_coagulopathy','ci_pregnant_or_breastfeeding','ci_drugs','ci_none'].forEach(id => {
       const node = el(id); if(!node) return; state.contraindications[id] = !!node.checked;
     });
     computeDerivedFlags();
     const reasons = currentReasons();
-    const derived_absolute_contraindication = reasons.length > 0;
-    // Save state.contraindications.derived_absolute_contraindication to true if length of the list resons > 0
+    const noneSelected = state.contraindications.ci_none === true;
+    const derived_absolute_contraindication = !noneSelected && reasons.length > 0;    
     state.contraindications.derived_absolute_contraindication = derived_absolute_contraindication;
     const box = el('ciResult');
     if(box){
@@ -75,6 +163,7 @@ export function initContraindicationsStep(formEl, state){
   function showCIJson(){ // shows the payload, could be deleted later
     computeCI();
     const data = {
+      ci_none: !!el('ci_none')?.checked,
       ci_active_bleeding: !!el('ci_active_bleeding')?.checked,
       ci_endocarditis: !!el('ci_endocarditis')?.checked,
       ci_gi_ulcus_active: !!el('ci_gi_ulcus_active')?.checked,
@@ -99,5 +188,8 @@ export function initContraindicationsStep(formEl, state){
 
   reflectSexVisibility();
   computeDerivedFlags();
+  setupNoneCheckboxLogic();
+  ensureAtLeastOneSelected();
+  attachAtLeastOneListeners();
   computeCI();
 }
