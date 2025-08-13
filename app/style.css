@@ -451,3 +451,14 @@ hr {
   pointer-events: auto;
   cursor: default;
 }
+
+.none-of-above {
+  margin-top: 14px;
+  padding: 6px;
+  background: #fff3cd;
+  border-radius: 6px;
+}
+.none-of-above label {
+  font-weight: bold;
+  color: #271818;
+}
