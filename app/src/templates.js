@@ -145,7 +145,6 @@ export const TEMPLATES = {
     3: () => /*html*/`
       <fieldset>
         <legend>Drug-drug Interactions</legend>
-    
         <!-- All medications in one list -->
         <div class="medications">
           <div class="grid cols-2" role="group" aria-label="Medications">
@@ -153,23 +152,24 @@ export const TEMPLATES = {
             <label class="inline checkbox"><input type="checkbox" class="med-check" id="clopidogrel" name="clopidogrel" /> Clopidogrel</label>
             <label class="inline checkbox"><input type="checkbox" class="med-check" id="nsaid" name="nsaid" /> NSAID</label>
             <label class="inline checkbox"><input type="checkbox" class="med-check" id="ssri" name="ssri" /> SSRI or SNRI</label>
-    
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="amiodaron" name="amiodaron"> amiodaron</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="chinidin" name="chinidin"> chinidin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="dronedaron" name="dronedaron"> dronedaron</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="diltiazem" name="diltiazem"> diltiazem</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="verapamil" name="verapamil"> verapamil</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="erythromycin" name="erythromycin"> erythromycin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="naproxen" name="naproxen"> naproxen</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="fluconazol" name="fluconazol"> fluconazol</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="ciclosporin" name="ciclosporin"> ciclosporin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" id="tacrolimus" name="tacrolimus"> tacrolimus</label>
+            
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="amiodaron" name="amiodaron"> Amiodaron</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="chinidin" name="chinidin"> Chinidin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="dronedaron" name="dronedaron"> Dronedaron</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="diltiazem" name="diltiazem"> Diltiazem</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="verapamil" name="verapamil"> Verapamil</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="erythromycin" name="erythromycin"> Erythromycin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="naproxen" name="naproxen"> Naproxen</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="fluconazol" name="fluconazol"> Fluconazol</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="ciclosporin" name="ciclosporin"> Ciclosporin</label>
+            <label class="inline checkbox"><input type="checkbox" class="med-check" id="tacrolimus" name="tacrolimus"> Tacrolimus</label>
           </div>
-    
-          <!-- None of the above -->
-          <div style="margin-top:10px">
-            <label class="inline checkbox"><input type="checkbox" id="none" name="none"> None of the above</label>
-          </div>
+   
+         <div class="none-of-above">
+          <label class="inline checkbox">
+            <input type="checkbox" id="none" name="none"> None of the Above
+          </label>
+        </div>
         </div>
     
         <!-- HAS-BLED (always visible) -->
@@ -181,8 +181,11 @@ export const TEMPLATES = {
             <label class="inline checkbox"><input type="checkbox" id="hb-liver" name="hb-liver"> Liver disease</label>
             <label class="inline checkbox"><input type="checkbox" id="hb-bleeding" name="hb-bleeding"> Bleeding history</label>
             <label class="inline checkbox"><input type="checkbox" id="hb-labile-inr" name="hb-labile-inr"> Labile INR</label>
-            <label class="inline checkbox"><input type="checkbox" id="hb-drugs" name="hb-drugs"> Drugs (antiplatelets/NSAIDs)</label>
-            <label class="inline checkbox"><input type="checkbox" id="hb-alcohol" name="hb-alcohol"> Alcohol use</label>
+            <label class="inline checkbox">
+              <input type="checkbox" id="hb-drugs" name="hb-drugs" disabled title="Auto-calculated from Aspirin, Clopidogrel, NSAID">
+                Drugs predisposing to bleeding (ASS/Clopidogrel/NSAIDs)
+            </label>
+            <label class="inline checkbox"><input type="checkbox" id="hb-alcohol" name="hb-alcohol"> Alcohol use (≥8 drinks/week)</label>
           </div>
           <div style="margin-top:8px">
             <div>Elderly (65+): <span id="hb-elderly-badge" class="badge">False</span></div>

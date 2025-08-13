@@ -34,6 +34,18 @@ export function initInteractionsStep(formEl, state){
 
     const dual = aspirin && clopidogrel;           // derived_dual_antiplatelet_therapy
     const ppiInd = dual || nsaid || ssri;          // kept in state only
+    // === HAS-BLED: Drugs predisposing to bleeding (ASS, clopidogrel, NSAIDs) ===
+    // Count as TRUE if any of: aspirin, clopidogrel, NSAID. (SSRIs do NOT count)
+    const hbDrugs = aspirin || clopidogrel || nsaid;
+    const hbDrugsEl = el('hb-drugs');
+    if (hbDrugsEl) {
+      // keep checkbox in sync; downstream HAS-BLED code can listen to 'change'
+      const prev = hbDrugsEl.checked;
+      hbDrugsEl.checked = hbDrugs;
+      if (hbDrugs !== prev) {
+        hbDrugsEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
 
     state.interactions = {
       ...state.interactions,
@@ -44,7 +56,19 @@ export function initInteractionsStep(formEl, state){
       SSRI_or_SNRI: ssri,
       derived_dual_antiplatelet_therapy: dual,
       derived_PPI_indication: ppiInd,
+      derived_HASBLED_drugs_bleeding_predisposition: hbDrugs,
     };
+  }
+
+  // Disable HAS-BLED uncontrolled hypertension if hypertension in CHA₂DS₂-VASc is false
+  const hbHypertensionEl = formEl.querySelector('#hb-hypertension');
+  if (hbHypertensionEl) {
+    if (state.chadsvasc?.hypertension === false) {
+      hbHypertensionEl.checked = false;
+      hbHypertensionEl.disabled = true;
+    } else {
+      hbHypertensionEl.disabled = false;
+    }
   }
 
   function computeInteractionsTriggers(){
@@ -111,7 +135,7 @@ export function initInteractionsStep(formEl, state){
       liver_disease: hbLiver,
       stroke_history: strokeFromChads,
       bleeding_history: hbBleeding,
-      labile_inr: false,
+      labile_inr: hbLabileINR,
       elderly_65_plus: elderly,
       drugs_antiplatelets_nsaids: hbDrugs,
       alcohol_use: hbAlcohol,
