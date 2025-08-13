@@ -179,9 +179,9 @@ export const TEMPLATES = {
     </div>
   </fieldset>
 `,
-    4: () => /*html*/`
+  4: () => /*html*/`
   <fieldset>
-    <legend>Summary</legend>
+    <legend>Summary & Recommendation</legend>
     
     <div class="summary-box">
       <h3>Patient Information</h3>
@@ -189,26 +189,31 @@ export const TEMPLATES = {
     </div>
 
     <div class="summary-box">
-      <h3>Indication</h3>
+      <h3>Indication (CHA₂DS₂-VASc)</h3>
       <div id="summary-indication"></div>
     </div>
 
     <div class="summary-box">
-      <h3>Contraindication</h3>
+      <h3>Contraindications</h3>
       <div id="summary-contraindication"></div>
     </div>
 
     <div class="summary-box">
-      <h3>Drug-drug Interaction</h3>
+      <h3>Interactions & Bleeding Risk (HAS-BLED)</h3>
       <div id="summary-interactions"></div>
     </div>
 
     <div class="summary-box recommendation">
       <h3>Treatment Recommendation</h3>
       <ul id="recommendation-list">
-        <!-- Dynamic content here -->
+        <!-- Dynamic content will be injected here -->
       </ul>
     </div>
+
+    <!-- New box to display the full state object -->
+    <div class="summary-box">
+      <h3>Full State Object (for debugging)</h3>
+      <pre id="summary-full-state" class="state-preview"></pre>
+    </div>
   </fieldset>
-`,
-};
+`};

@@ -1,81 +1,99 @@
 import { escapeHtml } from './utils.js';
 
-export function renderSummary(s){
-  const p = s.patient || {}; const c = s.chadsvasc || {}; const ci = s.contraindications || {};
-  return `
-      <div class="grid cols-2">
-        <div>
-          <h3>Patient</h3>
-          <div class="notice">
-            Name: ${escapeHtml(p.patient_name || '—')}<br/>
-            Age: ${escapeHtml(p.age ?? '—')}<br/>
-            Weight: ${escapeHtml(p.patient_weight ?? '—')} kg<br/>
-            Kreatinin: ${escapeHtml(p.patient_kreatinin ?? '—')} µmol/l<br/>
-            GFR: ${escapeHtml(p.patient_gfr ?? '—')}
-          </div>
-        </div>
-        <div>
-          <h3>CHA₂DS₂-VASc</h3>
-          <div class="notice">
-            Age group: ${escapeHtml(c.age_group || '—')}<br/>
-            Sex: ${escapeHtml(c.sex || '—')}<br/>
-            Score: <strong>${c.score ?? '—'}</strong><br/>
-            DOAC indication (derived): <strong>${c.derived_CHADSVASC_Score ? 'True' : 'False'}</strong>
-          </div>
-          <div class="notice" style="margin-top:6px">
-            <strong>Contraindications</strong><br/>
-            Absolute CI (derived): <strong>${(s.contraindications?.derived_absolute_contraindication) ? 'True' : 'False'}</strong><br/>
-            Under 18: ${(s.contraindications?.derived_ci_age) ? 'True' : 'False'}; Renal failure (GFR <15): ${(s.contraindications?.ci_renal_failure) ? 'True' : 'False'}
-          </div>
-        </div>
-      </div>
-    `;
+/**
+ * Populates all the summary boxes on the final page with data from the state.
+ * @param {object} fullState - The complete application state object.
+ */
+export function renderSummary(fullState) {
+  const { patient = {}, chadsvasc = {}, contraindications = {}, interactions = {}, hasbled = {} } = fullState;
+
+  // --- Helper to safely get an element and set its innerHTML ---
+  const renderTo = (id, content) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = content;
+  };
+
+  // 1. Render Patient Information
+  renderTo('summary-patient', `
+    <p><strong>Name:</strong> ${escapeHtml(patient.first_name || 'N/A')} ${escapeHtml(patient.last_name || '')}</p>
+    <p><strong>Age:</strong> ${escapeHtml(patient.age ?? 'N/A')} years</p>
+    <p><strong>Weight:</strong> ${escapeHtml(patient.patient_weight ?? 'N/A')} kg</p>
+    <p><strong>Creatinine:</strong> ${escapeHtml(patient.patient_kreatinin ?? 'N/A')} µmol/l</p>
+    <p><strong>GFR:</strong> ${escapeHtml(patient.patient_gfr ?? 'N/A')} ml/min</p>
+  `);
+
+  // 2. Render Indication Summary
+  renderTo('summary-indication', `
+    <p><strong>CHA₂DS₂-VASc Score:</strong> <strong class="score">${chadsvasc.score ?? 'N/A'}</strong></p>
+    <p><strong>DOAC Indication:</strong> ${chadsvasc.derived_CHADSVASC_Score ? 'Yes' : 'No'}</p>
+  `);
+
+  // 3. Render Contraindications Summary
+  const contraReasons = [];
+  if (contraindications.derived_ci_age) contraReasons.push('Patient is under 18');
+  if (contraindications.ci_renal_failure) contraReasons.push('Renal failure (GFR < 15)');
+  if (contraindications.ci_active_bleeding) contraReasons.push('Active bleeding');
+  // ... add other contraindication reasons as needed
+  renderTo('summary-contraindication', `
+    <p><strong>Absolute Contraindication Present:</strong> ${contraindications.derived_absolute_contraindication ? 'Yes' : 'No'}</p>
+    ${contraReasons.length > 0 ? `<ul>${contraReasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>` : '<p>No specific contraindications recorded.</p>'}
+  `);
+
+  // 4. Render Interactions & HAS-BLED Summary
+  renderTo('summary-interactions', `
+    <p><strong>HAS-BLED Score:</strong> <strong class="score">${hasbled.total_score ?? 'N/A'}</strong></p>
+    <p><strong>Interacting Drugs Selected:</strong> ${interactions['interacting drugs'] ? 'Yes' : 'No'}</p>
+    ${(interactions.interacting_drug_list?.length > 0) ? `<p>Medications: ${escapeHtml(interactions.interacting_drug_list.join(', '))}</p>` : ''}
+  `);
+
+  // 5. Render the full state object for debugging
+  const fullStateEl = document.getElementById('summary-full-state');
+  if (fullStateEl) {
+    fullStateEl.textContent = JSON.stringify(fullState, null, 2);
+  }
 }
 
-export function buildRecommendation(fullState){
+
+/**
+ * Calculates the final recommendation and renders it into the recommendation list.
+ * @param {object} fullState - The complete application state object.
+ */
+export function buildAndRenderRecommendation(fullState) {
   const { patient, chadsvasc, contraindications, interactions } = fullState;
+  const recommendationListEl = document.getElementById('recommendation-list');
+  if (!recommendationListEl) return;
 
   const chads = Number(chadsvasc.score ?? 0);
   const hasContra = !!contraindications.derived_absolute_contraindication;
 
   let rec, tone;
-  if(hasContra){ rec = 'Absolute contraindication(s) present. Anticoagulation likely NOT appropriate until addressed.'; tone='warn'; }
-  else if(chads >= 2){ rec = 'Recommend anticoagulation (e.g., DOAC) unless other risks prevail. Consider shared decision-making.'; tone='ok'; }
-  else if(chads === 1){ rec = 'Consider anticoagulation based on patient values and bleeding risk.'; tone='ok'; }
-  else { rec = 'Anticoagulation generally not indicated; re-evaluate if risk profile changes.'; tone='ok'; }
-
-  const egfr = (patient.patient_gfr !== undefined ? Number(patient.patient_gfr) : null);
-  const interactionNotes = [];
-  if(egfr !== null && !Number.isNaN(egfr) && egfr < 30){ interactionNotes.push('Impaired renal function — check DOAC dose/choice.'); }
-
-  const medsTrue = [
-    interactions.Aspirin ? 'Aspirin' : null,
-    interactions.Clopidogrel ? 'Clopidogrel' : null,
-    interactions.NSAID ? 'NSAID' : null,
-    interactions.SSRI_or_SNRI ? 'SSRI/SNRI' : null,
-  ].filter(Boolean);
-  if(medsTrue.length){ interactionNotes.push(`Concomitant meds: ${medsTrue.join(', ')}.`); }
-
-  const extraDrugs = Array.isArray(interactions.interacting_drug_list) ? interactions.interacting_drug_list : [];
-  if(extraDrugs.length){ interactionNotes.push(`Other interacting drugs: ${extraDrugs.join(', ')}.`); }
-
-  if(interactions.derived_PPI_indication){
-    const reasons = [];
-    if(interactions.derived_dual_antiplatelet_therapy) reasons.push('dual antiplatelet therapy');
-    if(interactions.NSAID) reasons.push('NSAID');
-    if(interactions.SSRI_or_SNRI) reasons.push('SSRI/SNRI');
-    interactionNotes.push(`PPI recommended (${reasons.join(', ')}).`);
+  if (hasContra) {
+    rec = 'Absolute contraindication(s) present. Anticoagulation is NOT appropriate until addressed.';
+    tone = 'warn';
+  } else if (chads >= 2) {
+    rec = 'Recommend anticoagulation (e.g., DOAC).';
+    tone = 'ok';
+  } else if (chads === 1) {
+    rec = 'Consider anticoagulation based on patient values and bleeding risk.';
+    tone = 'ok';
   } else {
-    interactionNotes.push('PPI not routinely indicated from current inputs.');
+    rec = 'Anticoagulation generally not indicated; re-evaluate if risk profile changes.';
+    tone = 'ok';
   }
 
-  if(interactions['interacting drugs']){
-    const gates = [];
-    if(interactions.derived_age_RF) gates.push('age ≥75');
-    if(interactions.derived_GFR_RF) gates.push('GFR <50');
-    if(interactions.weight_under_60) gates.push('weight ≤60kg');
-    if(gates.length){ interactionNotes.push(`Risk gates positive: ${gates.join(', ')}.`); }
+  const interactionNotes = [];
+  const egfr = patient.patient_gfr ? Number(patient.patient_gfr) : null;
+  if (egfr !== null && egfr < 30) {
+    interactionNotes.push('Impaired renal function — check DOAC dose/choice.');
   }
 
-  return { text: rec, tone, interactionNotes };
+  if (interactions.derived_PPI_indication) {
+    interactionNotes.push('PPI recommended due to concomitant medications.');
+  }
+
+  // --- Render the final recommendation ---
+  recommendationListEl.innerHTML = `
+    <li class="tone-${tone}">${escapeHtml(rec)}</li>
+    ${interactionNotes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
+  `;
 }

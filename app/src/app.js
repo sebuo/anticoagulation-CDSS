@@ -5,7 +5,8 @@ import { initChadsvascStep } from './steps/chadsvasc.js';
 import { initContraindicationsStep } from './steps/contraindications.js';
 import { initInteractionsStep } from './steps/interactions.js';
 import { initPatientInformationStep, validatePatientInformationStep } from './steps/patientInformation.js';
-import { buildRecommendation, renderSummary } from './recommendation.js';
+// Correctly import both functions from the recommendation module
+import { renderSummary, buildAndRenderRecommendation } from './recommendation.js';
 
 // --- DOM -------------------------------------------------------------
 const FORM = document.getElementById('questionary');
@@ -25,7 +26,6 @@ function clampStep(n) {
 }
 
 function saveCurrentStep() {
-  // Persist current step form values into shared state
   const key = stepKeys[currentStep];
   state[key] = serializeForm(FORM);
 }
@@ -50,12 +50,9 @@ function renderStepper() {
   const items = Array.from(STEPPER.querySelectorAll('[data-step]'));
   items.forEach((el) => {
     const idx = Number(el.getAttribute('data-step'));
-
     // More robustly handle classes: first remove all, then add the correct one.
     el.classList.remove('is-active', 'is-done');
-
     if (idx < currentStep) {
-      // Use the correct class name for completed steps.
       el.classList.add('is-done');
     } else if (idx === currentStep) {
       el.classList.add('is-active');
@@ -64,22 +61,19 @@ function renderStepper() {
 }
 
 function initStepSpecificLogic() {
-  // Step-specific initialization hooks after template render + hydration
   if (currentStep === 0) {
     initPatientInformationStep(FORM);
   } else if (currentStep === 1) {
-    // CHADS-VASc state is updated live by its own module.
     initChadsvascStep(FORM, state);
   } else if (currentStep === 2) {
-    // FIX: Pass the state object to the function
     initContraindicationsStep(FORM, state);
   } else if (currentStep === 3) {
-    // Proactively pass state here as well, as it will likely be needed.
     initInteractionsStep(FORM, state);
   } else if (currentStep === 4) {
     try {
-      const recommendation = buildRecommendation(state);
-      renderSummary(recommendation);
+      // On the final step, call both functions to render the complete summary and recommendation.
+      renderSummary(state);
+      buildAndRenderRecommendation(state);
     } catch (e) {
       console.error('Summary rendering failed:', e);
     }
@@ -93,13 +87,13 @@ function render() {
   }
   FORM.innerHTML = tpl();
 
+  // For all steps except CHADS-VASc, hydrate the form from the state.
   if (currentStep !== 1) {
     const stepKey = stepKeys[currentStep];
     hydrateForm(FORM, state[stepKey] || {});
   }
 
   initStepSpecificLogic();
-
   renderStepper();
   updateButtons();
   updateProgress();
@@ -123,20 +117,11 @@ function goNext() {
       saveCurrentStep();
       nextStep = res.underage ? (totalSteps - 1) : clampStep(currentStep + 1);
     }
-  } else if (currentStep === 1) {
-    if (!state.chadsvasc.sex) {
-      canProceed = false;
-      alert('Please select a sex before proceeding.');
-    } else {
-      saveCurrentStep();
-      nextStep = clampStep(currentStep + 1);
-    }
   } else {
     saveCurrentStep();
     nextStep = clampStep(currentStep + 1);
   }
 
-  // If all checks passed, update the current step and render the new view.
   if (canProceed && nextStep !== -1) {
     currentStep = nextStep;
     render();
@@ -149,7 +134,6 @@ function submitWizard(e) {
   currentStep = totalSteps - 1;
   render();
 }
-
 
 // --- EVENTS ----------------------------------------------------------
 BTN_PREV?.addEventListener('click', (e) => {
