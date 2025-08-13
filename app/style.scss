@@ -286,6 +286,24 @@ select {
   }
 }
 
+#chads-preview {
+  background-color: #f0f4f8; // A light, clean background
+  border-left: 5px solid $color-primary; // A colored accent border
+  padding: 16px 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.1em; // Slightly larger base font size
+  transition: all 0.3s ease;
+
+  // Style for the score number itself
+  #scoreResult {
+    font-size: 2em; // Make the number much larger
+    font-weight: 700;
+    color: $color-primary-2;
+    display: block; // Give it its own line
+    margin-top: 4px;
+  }
+}
 /* ======================================================================================
    BUTTONS / NAV
    ====================================================================================== */
@@ -353,6 +371,21 @@ select {
   }
 }
 
+// A container to correctly position an info button next to a checkbox.
+.checkbox-with-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px; // Space between the checkbox label and the info button
+
+  // The info box will be positioned relative to this container.
+  .info-box {
+    // Position it above the button/checkbox
+    bottom: 120%;
+    left: 15px; // Adjust as needed to align with the button
+    transform: translateX(0); // Override the centered transform
+  }
+}
 /* ======================================================================================
    MISC & RESPONSIVE
    ====================================================================================== */

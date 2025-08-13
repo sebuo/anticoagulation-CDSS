@@ -50,14 +50,13 @@ export const TEMPLATES = {
     </div>
   </fieldset>
   `,
-
-    1: () => /*html*/`
+  1: () => /*html*/`
       <fieldset>
         <legend>CHADS-VASc</legend>
     
         <!-- Age group is now a display-only container -->
         <div class="mb-3">
-          <label class="label">Age group (determined from patient info)</label>
+          <label class="label">Age group</label>
           <div id="age-group-display" class="age-group-container">
             <span data-age-group="<65">&lt;65 years (0 points)</span>
             <span data-age-group="65-74">65-74 years (1 point)</span>
@@ -68,8 +67,8 @@ export const TEMPLATES = {
         <div class="mb-3">
           <label class="label">Sex</label>
           <div class="grid">
-            <label class="inline"><input type="radio" id="male" name="sex" value="0"> <span>Male</span></label>
-            <label class="inline"><input type="radio" id="female" name="sex" value="1"> <span>Female</span></label>
+            <label class="inline"><input type="radio" id="male" name="sex" value="0" required> <span>Male</span></label>
+            <label class="inline"><input type="radio" id="female" name="sex" value="1" required> <span>Female</span></label>
           </div>
         </div>
     
@@ -79,20 +78,26 @@ export const TEMPLATES = {
           <label class="inline checkbox"><input type="checkbox" id="hypertension" name="hypertension" value="1"> Hypertension</label>
           <label class="inline checkbox"><input type="checkbox" id="diabetes" name="diabetes" value="1"> Diabetes Mellitus</label>
           <label class="inline checkbox"><input type="checkbox" id="strokeTIA" name="strokeTIA" value="2"> Stroke / TIA / Thromboembolism</label>
-          <label class="inline checkbox"><input type="checkbox"id="vascularDisease" name="vascularDisease" value="1"> Vascular Disease (MI, PAD, Aortic plaque)</label>
+                <div class="checkbox-with-info">
+        <label class="inline checkbox">
+          <input type="checkbox" id="vascularDisease" name="vascularDisease" value="1">
+          <span>Vascular Disease</span>
+        </label>
+        <button type="button" class="info-btn" data-toggles="vascular-disease-info-box">i</button>
+        <div id="vascular-disease-info-box" class="info-box">
+          Myocardial infarction (MI), peripheral artery disease (PAD), and aortic plaque are all related to atherosclerosis, a condition where fatty deposits (plaque) build up in arteries.
+        </div>
+      </div>
+
           <label class="inline checkbox"><input type="checkbox" id="None" name="None" value="0"> None of the above</label>
         </div>
     
-        <div class="nav" style="margin-top:12px;">
-          <button type="button" class="btn primary" id="calculateChadsScore">Calculate Score</button>
-        </div>
-    
-        <div class="notice ok" id="chads-preview" aria-live="polite" style="margin-top:10px;">
+        <div class="notice ok" id="chads-preview" aria-live="polite" style="margin-top:12px;">
           Score: <strong id="scoreResult">-</strong>
         </div>
       </fieldset>
     `,
-    2: () => /*html*/`
+  2: () => /*html*/`
       <fieldset>
         <legend>Contraindications</legend>
         <p class="instructions"><strong>Does your patient have one or more of the conditions and/or medications?</strong></p>
