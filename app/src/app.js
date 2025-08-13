@@ -1,11 +1,13 @@
 import { TEMPLATES } from './templates.js';
 import { state, stepKeys } from './state.js';
-import { escapeHtml, serializeForm, hydrateForm, deriveAgeGroupFromNumeric } from './utils.js';
+import { serializeForm, hydrateForm } from './utils.js';
 import { initChadsvascStep } from './steps/chadsvasc.js';
 import { initContraindicationsStep } from './steps/contraindications.js';
 import { initInteractionsStep } from './steps/interactions.js';
+import { initPatientInformationStep, validatePatientInformationStep } from './steps/patientInformation.js';
 import { buildRecommendation, renderSummary } from './recommendation.js';
 
+// --- DOM -------------------------------------------------------------
 const FORM = document.getElementById('questionary');
 const BTN_PREV = document.getElementById('btnPrev');
 const BTN_NEXT = document.getElementById('btnNext');
@@ -13,154 +15,155 @@ const BTN_SUBMIT = document.getElementById('btnSubmit');
 const STEPPER = document.getElementById('stepper');
 const PROGRESS = document.getElementById('progress-bar');
 
+// --- STATE -----------------------------------------------------------
 let currentStep = 0;
+const totalSteps = Object.keys(TEMPLATES).length; // expected 5 (0..4)
 
-function validateStep(stepIndex, dataForStep){
-  switch(stepIndex){
-    case 0: {
-      const required = ['first_name', 'last_name', 'age', 'patient_weight', 'patient_kreatinin', 'patient_gfr'];
-      const missing = required.filter(k => dataForStep[k] === undefined || dataForStep[k] === null || dataForStep[k].toString().trim() === '');
-      if(missing.length){ 
-        return { ok:false, message: 'Please fill all patient fields.' }; 
-      }// Ensure that all patient fields are filled --> else print message
-
-      // Validate that first_name and last_name do not contain whitespace
-      if(!/^\S+$/.test(String(dataForStep.first_name))){ 
-        return { ok:false, message:'First name cannot contain whitespace.' }; 
-      }
-      if(!/^\S+$/.test(String(dataForStep.last_name))){ 
-        return { ok:false, message:'Last name cannot contain whitespace.' }; 
-      }
-
-      // Numeric validations to be within specified ranges
-      const age = Number(dataForStep.age);
-      const wt  = Number(dataForStep.patient_weight);
-      const cr  = Number(dataForStep.patient_kreatinin);
-      const gfr = Number(dataForStep.patient_gfr);
-
-      if(!(age >= 0 && age <= 120)) 
-        return { ok:false, message:'Age must be between 0 and 120.' };
-
-      if(!(wt >= 0 && wt <= 300)) 
-        return { ok:false, message:'Weight must be between 0 and 300.' };
-
-      if(!(cr >= 0 && cr <= 1000))  // Adjusted max creatinine to 1000 if > 1000
-        return { ok:false, message:'Creatinine must be between 0 and 1000 µmol/l.' };
-
-      if(!(gfr >= 0 && gfr <= 120)) 
-        return { ok:false, message:'GFR must be between 0 and 120 ml/min.' };
-
-      return { ok:true };
-    }
-    case 1:
-      return { ok:true };
-    default:
-      return { ok:true };
-  }
+// --- HELPERS ---------------------------------------------------------
+function clampStep(n) {
+  return Math.max(0, Math.min(n, totalSteps - 1));
 }
 
-function saveCurrentStep(){
-  const data = serializeForm(FORM);
+function saveCurrentStep() {
+  // Persist current step form values into shared state
   const key = stepKeys[currentStep];
-  state[key] = { ...state[key], ...data };
-  if(currentStep === 1){
-    // nothing additional; chadsvasc module recomputes on change
-  }
-  if(currentStep === 2){
-    const age = Number(state.patient?.age);
-    const gfr = Number(state.patient?.patient_gfr);
-    state.contraindications.derived_ci_age = (age < 18);
-    state.contraindications.ci_renal_failure = (gfr < 15);
-    state.contraindications.sex = state.chadsvasc?.sex || state.contraindications.sex;
-    state.contraindications.derived_absolute_contraindication = !!(
-      state.contraindications.derived_ci_age || state.contraindications.ci_renal_failure ||
-      state.contraindications.ci_active_bleeding || state.contraindications.ci_endocarditis ||
-      state.contraindications.ci_gi_ulcus_active || state.contraindications.ci_liver_failure_child_c_or_coagulopathy ||
-      (state.contraindications.sex === 'F' && state.contraindications.ci_pregnant_or_breastfeeding) ||
-      state.contraindications.ci_drugs
-    );
-  }
+  state[key] = serializeForm(FORM);
 }
 
-function render(){
-  FORM.innerHTML = TEMPLATES[currentStep]();
-
-  // Minimal fade/slide-in on each step mount
-  const first = FORM.firstElementChild; // expected <fieldset>
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(first && !reduce){
-    first.classList.remove('step-animate-in');
-    void first.offsetWidth; // reflow to restart animation
-    first.classList.add('step-animate-in');
-  }
-
-  hydrateForm(FORM, state[stepKeys[currentStep]] || {});
-
+function updateButtons() {
   BTN_PREV.disabled = currentStep === 0;
-  BTN_NEXT.hidden = currentStep === stepKeys.length - 1;
-  BTN_SUBMIT.hidden = !(currentStep === stepKeys.length - 1);
+  const onLast = currentStep === totalSteps - 1;
 
-  [...STEPPER.children].forEach((li, idx) => {
-    li.classList.toggle('is-active', idx === currentStep);
-    li.classList.toggle('is-done', idx < currentStep);
-  });
+  BTN_NEXT.style.display = onLast ? 'none' : '';
+  BTN_SUBMIT.style.display = onLast ? '' : 'none';
+}
 
-  const pct = (currentStep) / (stepKeys.length - 1) * 100;
+function updateProgress() {
+  if (!PROGRESS) return;
+  const pct = totalSteps > 1 ? Math.round((currentStep / (totalSteps - 1)) * 100) : 0;
   PROGRESS.style.width = `${pct}%`;
+  PROGRESS.setAttribute('aria-valuenow', String(pct));
+}
 
-  if(currentStep === 1){
-    initChadsvascStep(FORM, state, deriveAgeGroupFromNumeric);
-  }
+function renderStepper() {
+  if (!STEPPER) return;
+  const items = Array.from(STEPPER.querySelectorAll('[data-step]'));
+  items.forEach((el) => {
+    const idx = Number(el.getAttribute('data-step'));
+    // FIX: Use 'is-active' to match the CSS class from index.html
+    el.classList.toggle('is-active', idx === currentStep);
+    // Use 'is-completed' for styling past steps for consistency
+    el.classList.toggle('is-completed', idx < currentStep);
+  });
+}
 
-  if(currentStep === 2){
-    initContraindicationsStep(FORM, state);
-  }
-
-  if(currentStep === 3){
-    initInteractionsStep(FORM, state);
-  }
-
-  if(currentStep === 4){
-    const summary = document.getElementById('summary');
-    const recBox = document.getElementById('recommendationBox');
-    const finalJson = document.getElementById('finalJson');
-    const rec = buildRecommendation(state);
-    recBox.classList.remove('ok','warn');
-    recBox.classList.add(rec.tone);
-    recBox.innerHTML = `
-      <strong>Recommendation</strong><br/>
-      ${escapeHtml(rec.text)}
-      ${rec.interactionNotes.length ? `<div class="badge">Notes</div> ${escapeHtml(rec.interactionNotes.join(' '))}` : ''}
-    `;
-    summary.innerHTML = renderSummary(state);
-    finalJson.textContent = JSON.stringify(state, null, 2);
+function initStepSpecificLogic() {
+  // Step-specific initialization hooks after template render + hydration
+  if (currentStep === 0) {
+    // Patient Information
+    initPatientInformationStep(FORM);
+  } else if (currentStep === 1) {
+    // CHADS-VASc
+    // Provide utilities as your existing init expects
+    initChadsvascStep(FORM, state);
+  } else if (currentStep === 2) {
+    // Contraindications
+    initContraindicationsStep(FORM);
+  } else if (currentStep === 3) {
+    // Interactions
+    initInteractionsStep(FORM);
+  } else if (currentStep === 4) {
+    // Summary / Recommendation
+    try {
+      const recommendation = buildRecommendation(state);
+      renderSummary(recommendation);
+    } catch (e) {
+      // Fail-safe: still render the section to avoid a blank page
+      console.error('Summary rendering failed:', e);
+    }
   }
 }
 
-// Wire up controls
-BTN_PREV.addEventListener('click', () => { saveCurrentStep(); currentStep = Math.max(0, currentStep - 1); render(); });
-BTN_NEXT.addEventListener('click', () => {
-  saveCurrentStep();
-  const { ok, message } = validateStep(currentStep, state[stepKeys[currentStep]]);
-  if(!ok){ alert(message || 'Please complete required fields.'); return; }
-  currentStep = Math.min(stepKeys.length - 1, currentStep + 1); render();
-});
-FORM.addEventListener('submit', (e) => { e.preventDefault(); saveCurrentStep(); const { ok, message } = validateStep(currentStep, state[stepKeys[currentStep]]); if(!ok){ alert(message || 'Please complete required fields.'); return; } alert('Questionnaire finished. See the summary and JSON output below.'); });
-STEPPER.addEventListener('click', (e) => { const li = e.target.closest('li.step'); if(!li) return; const dest = Number(li.dataset.step); if(Number.isNaN(dest)) return; if(dest <= currentStep){ saveCurrentStep(); currentStep = dest; render(); } });
-
-
-// Handle CHADS-VASc logic to switch steps
-FORM.addEventListener('chadsScoreCalculated', (e) => {
-  const score = e.detail.score;
-  if(score < 2){
-    currentStep = 4; // go to recommendation
-  } else {
-    currentStep = 2; // go to contraindications
+function render() {
+  // 1) Render template for the current step
+  const tpl = TEMPLATES[currentStep];
+  if (typeof tpl !== 'function') {
+    throw new Error(`No template for step ${currentStep}`);
   }
-  render(); // update the UI immediately
+  FORM.innerHTML = tpl();
+
+  // 2) Hydrate with any stored values for this step
+  const stepKey = stepKeys[currentStep];
+  hydrateForm(FORM, state[stepKey] || {});
+
+  // 3) Step-specific logic (event handlers, computed fields, etc.)
+  initStepSpecificLogic();
+
+  // 4) UI chrome
+  renderStepper();
+  updateButtons();
+  updateProgress();
+}
+
+// --- NAVIGATION ------------------------------------------------------
+function goPrev() {
+  saveCurrentStep();
+  currentStep = clampStep(currentStep - 1);
+  render();
+}
+
+function goNext() {
+  if (currentStep === 0) {
+    const res = validatePatientInformationStep(FORM);
+    if (!res.valid) return;           // do not advance if anything missing/invalid
+    saveCurrentStep();
+    currentStep = res.underage ? 4    // age < 18 => jump to step 4
+        : clampStep(currentStep + 1);
+    return render();
+  }
+  saveCurrentStep();
+  currentStep = clampStep(currentStep + 1);
+  render();
+}
+
+function submitWizard(e) {
+  e?.preventDefault?.();
+
+  if (currentStep === 0) {
+    const { valid } = validatePatientInformationStep(FORM);
+    if (!valid) return;
+  }
+  saveCurrentStep();
+  currentStep = totalSteps - 1;
+  render();
+}
+
+
+// --- EVENTS ----------------------------------------------------------
+BTN_PREV?.addEventListener('click', (e) => {
+  e.preventDefault();
+  goPrev();
 });
 
-// Init after DOM is ready
+BTN_NEXT?.addEventListener('click', (e) => {
+  e.preventDefault();
+  goNext();
+});
+
+BTN_SUBMIT?.addEventListener('click', submitWizard);
+
+// Handle CHADS-VASc logic to switch steps programmatically
+// Your initChadsvascStep should dispatch this custom event with { detail: { score } }
+FORM.addEventListener('chadsScoreCalculated', (e) => {
+  const score = Number(e?.detail?.score);
+  // Business rule: score < 2 jumps straight to recommendation; else continue workflow
+  if (Number.isFinite(score)) {
+    currentStep = score < 2 ? (totalSteps - 1) : 2; // 4 => recommendation, 2 => contraindications
+    render();
+  }
+});
+
+// --- BOOT ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   render();
 });

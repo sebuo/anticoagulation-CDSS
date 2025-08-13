@@ -8,16 +8,6 @@ export function escapeHtml(str){
     .replaceAll("'",'&#39;');
 }
 
-export function deriveAgeGroupFromNumeric(age){
-  if(age == null || Number.isNaN(Number(age))) return null;
-  const a = Number(age);
-  if(a < 18) return '<18';
-  if(a <= 64) return '18-64';
-  if(a <= 74) return '65-74';
-  if(a < 80) return '75-79';
-  return '>=80';
-}
-
 export function serializeForm(formEl){
   const fd = new FormData(formEl); const obj = {};
   for(const [k, v] of fd.entries()){ obj[k] = v; }
