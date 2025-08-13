@@ -92,7 +92,7 @@ export const TEMPLATES = {
           <label class="inline checkbox"><input type="checkbox" id="None" name="None" value="0"> None of the above</label>
         </div>
     
-        <div class="notice ok" id="chads-preview" aria-live="polite" style="margin-top:12px;">
+        <div class="notice ok" id="chads-preview" aria-live="polite">
           Score: <strong id="scoreResult">-</strong>
         </div>
       </fieldset>
@@ -129,30 +129,56 @@ export const TEMPLATES = {
         </div>
       </fieldset>
     `,
-    3: () => /*html*/`
-      <fieldset>
-        <legend>Drug-drug Interactions</legend>
-        <div class="medications">
-          <div class="grid" role="group" aria-label="Medications">
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="aspirin" /> Aspirin (ASS)</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="clopidogrel" /> Clopidogrel</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="nsaid" /> NSAID</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="ssri" /> SSRI or SNRI</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="amiodaron"> Amiodaron</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="chinidin"> Chinidin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="dronedaron"> Dronedaron</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="diltiazem"> Diltiazem</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="verapamil"> Verapamil</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="erythromycin"> Erythromycin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="naproxen"> Naproxen</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="fluconazol"> Fluconazol</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="ciclosporin"> Ciclosporin</label>
-            <label class="inline checkbox"><input type="checkbox" class="med-check" name="tacrolimus"> Tacrolimus</label>
-          </div>
+  3: () => /*html*/`
+  <fieldset>
+    <legend>Drug-drug Interactions & Bleeding Risk</legend>
+    
+    <div class="section">
+      <p class="instructions"><strong>Select all medications the patient is currently taking.</strong></p>
+      <div class="medications">
+        <div class="grid" role="group" aria-label="Medications">
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="aspirin" /> Aspirin (ASS)</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="clopidogrel" /> Clopidogrel</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="nsaid" /> NSAID</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="ssri" /> SSRI or SNRI</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="amiodaron"> Amiodaron</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="chinidin"> Chinidin</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="dronedaron"> Dronedaron</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="diltiazem"> Diltiazem</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="verapamil"> Verapamil</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="erythromycin"> Erythromycin</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="naproxen"> Naproxen</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="fluconazol"> Fluconazol</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="ciclosporin"> Ciclosporin</label>
+          <label class="inline checkbox"><input type="checkbox" class="med-check" name="tacrolimus"> Tacrolimus</label>
+          <label class="inline checkbox"><input type="checkbox" name="none" /> None of the above</label>
         </div>
-      </fieldset>
-    `,
+      </div>
+    </div>
 
+    <!-- This entire section is now hidden by default -->
+    <div id="has-bled-section" style="display: none;">
+      <hr class="divider">
+      <div class="section">
+        <p class="instructions"><strong>HAS-BLED Score for major bleeding risk.</strong></p>
+        <div class="grid has-bled-grid">
+          <label class="inline checkbox"><input type="checkbox" name="hb-hypertension" /> Uncontrolled Hypertension</label>
+          <label class="inline checkbox"><input type="checkbox" name="hb-renal" /> Abnormal Renal Function</label>
+          <label class="inline checkbox"><input type="checkbox" name="hb-liver" /> Abnormal Liver Function</label>
+          <label class="inline checkbox"><input type="checkbox" name="hb-bleeding" /> Predisposition to bleeding</label>
+          <label class="inline checkbox"><input type="checkbox" name="hb-labile-inr" /> Labile INR</label>
+          <label class="inline checkbox"><input type="checkbox" name="hb-alcohol" /> Alcohol Abuse</label>
+          
+          <label class="inline checkbox disabled"><input type="checkbox" name="hb-stroke-derived" disabled /> Stroke History</label>
+          <label class="inline checkbox disabled"><input type="checkbox" name="hb-elderly-derived" disabled /> Elderly (≥65)</label>
+          <label class="inline checkbox disabled"><input type="checkbox" name="hb-drugs-derived" disabled /> Drugs (Antiplatelets/NSAID)</label>
+        </div>
+        <div class="notice ok" id="hasbled-preview" aria-live="polite">
+          HAS-BLED Score: <strong id="hb-score">-</strong>
+      </div>
+    </div>
+  </fieldset>
+`,
     4: () => /*html*/`
   <fieldset>
     <legend>Summary</legend>

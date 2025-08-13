@@ -93,8 +93,6 @@ function render() {
   }
   FORM.innerHTML = tpl();
 
-  // For all steps except CHADS-VASc, hydrate the form from the state.
-  // CHADS-VASc handles its own state hydration.
   if (currentStep !== 1) {
     const stepKey = stepKeys[currentStep];
     hydrateForm(FORM, state[stepKey] || {});
@@ -130,13 +128,10 @@ function goNext() {
       canProceed = false;
       alert('Please select a sex before proceeding.');
     } else {
-      const score = state.chadsvasc.score;
-      nextStep = score < 2 ? (totalSteps - 1) : 2;
-      // Log the navigation decision for debugging
-      console.log(`[app.js] Navigating from CHADS-VASc. Score: ${score}, Next Step: ${nextStep}`);
+      saveCurrentStep();
+      nextStep = clampStep(currentStep + 1);
     }
   } else {
-    // For all other steps, just save and go to the next one.
     saveCurrentStep();
     nextStep = clampStep(currentStep + 1);
   }
