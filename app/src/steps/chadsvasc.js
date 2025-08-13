@@ -14,9 +14,6 @@ export function scoreChadsVascFromState(state){
 }
 
 export function initChadsvascStep(formEl, state, deriveAgeGroupFromNumeric){
-  const ageRadio = formEl.querySelector('input[name="age"]:checked');
-  const sexRadio = formEl.querySelector('input[name="sex"]:checked');
-
   function computeChadsFromForm(){
     const ageRadio = formEl.querySelector('input[name="age"]:checked');
     const sexRadio = formEl.querySelector('input[name="sex"]:checked');
@@ -52,32 +49,53 @@ export function initChadsvascStep(formEl, state, deriveAgeGroupFromNumeric){
     state.chadsvasc.score = score;
     state.chadsvasc.derived_CHADSVASC_Score = score >= 2;
 
+    // update UI
     const scoreEl = document.getElementById('scoreResult');
-    const adviceEl = document.getElementById('treatmentAdvice');
     if(scoreEl) scoreEl.textContent = String(score);
-    if(adviceEl){
-      if(score < 2){ adviceEl.textContent = 'No DOAK treatment indicated'; adviceEl.className = 'advice-green'; }
-      else { adviceEl.textContent = 'Continue with contraindication assessment'; adviceEl.className = 'advice-red'; }
-    }
   }
 
+  // auto compute on any change
   formEl.addEventListener('change', computeChadsFromForm);
 
+  // Calculate button emits event
+  const btn = formEl.querySelector('#calculateChadsScore');
+  if(btn){
+    btn.addEventListener('click', () => {
+      computeChadsFromForm();
+      const score = state.chadsvasc.score;
+
+      // dispatch custom event with score
+      const evt = new CustomEvent('chadsScoreCalculated', { detail: { score } });
+      formEl.dispatchEvent(evt);
+    });
+  }
+
+  // initialize age group from numeric age
   const derivedGroup = deriveAgeGroupFromNumeric(state.patient.age);
   if(derivedGroup && !state.chadsvasc.age_group){
     const id = Object.entries(ageIdToGroup).find(([k,v]) => v === derivedGroup)?.[0];
-    if(id){ const el = formEl.querySelector(`#${id}`); if(el){ el.checked = true; } }
+    if(id){ 
+      const el = formEl.querySelector(`#${id}`); 
+      if(el) el.checked = true;
+    }
     state.chadsvasc.age_group = derivedGroup;
     state.chadsvasc.agePoints = Number(formEl.querySelector(`#${id}`)?.value || 0);
   }
+
+  // initialize sex
   if(state.chadsvasc.sex){
     const id = state.chadsvasc.sex === 'M' ? 'male' : 'female';
-    const el = formEl.querySelector(`#${id}`); if(el) el.checked = true;
+    const el = formEl.querySelector(`#${id}`);
+    if(el) el.checked = true;
   }
+
+  // initialize checkboxes
   formEl.querySelector('#congestiveHF') && (formEl.querySelector('#congestiveHF').checked = !!state.chadsvasc.chf);
   formEl.querySelector('#hypertension') && (formEl.querySelector('#hypertension').checked = !!state.chadsvasc.hypertension);
   formEl.querySelector('#diabetes') && (formEl.querySelector('#diabetes').checked = !!state.chadsvasc.diabetes);
   formEl.querySelector('#strokeTIA') && (formEl.querySelector('#strokeTIA').checked = !!state.chadsvasc.stroke_or_tia);
   formEl.querySelector('#vascularDisease') && (formEl.querySelector('#vascularDisease').checked = !!state.chadsvasc.vascular_disease);
+
+  // initial compute
   computeChadsFromForm();
 }

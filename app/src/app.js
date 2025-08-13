@@ -148,5 +148,19 @@ BTN_NEXT.addEventListener('click', () => {
 FORM.addEventListener('submit', (e) => { e.preventDefault(); saveCurrentStep(); const { ok, message } = validateStep(currentStep, state[stepKeys[currentStep]]); if(!ok){ alert(message || 'Please complete required fields.'); return; } alert('Questionnaire finished. See the summary and JSON output below.'); });
 STEPPER.addEventListener('click', (e) => { const li = e.target.closest('li.step'); if(!li) return; const dest = Number(li.dataset.step); if(Number.isNaN(dest)) return; if(dest <= currentStep){ saveCurrentStep(); currentStep = dest; render(); } });
 
-// Init
-render();
+
+// Handle CHADS-VASc logic to switch steps
+FORM.addEventListener('chadsScoreCalculated', (e) => {
+  const score = e.detail.score;
+  if(score < 2){
+    currentStep = 4; // go to recommendation
+  } else {
+    currentStep = 2; // go to contraindications
+  }
+  render(); // update the UI immediately
+});
+
+// Init after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  render();
+});
