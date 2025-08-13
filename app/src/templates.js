@@ -203,12 +203,77 @@ export const TEMPLATES = {
     `,
 
     4: () => /*html*/`
-      <fieldset>
-        <legend>Treatment Recommendation</legend>
-        <div id="summary"></div>
-        <hr />
-        <div id="recommendationBox" class="notice ok"></div>
-      </fieldset>
-      <div class="output" id="finalJson"></div>
-    `,
+  <fieldset>
+    <legend>Summary</legend>
+    
+    <!-- Patient Information -->
+    <div class="summary-box">
+      <h3>Patient Information</h3>
+      <div id="summary-patient"></div>
+    </div>
+
+    <!-- Indication -->
+    <div class="summary-box">
+      <h3>Indication</h3>
+      <div id="summary-indication"></div>
+    </div>
+
+    <!-- Contraindication -->
+    <div class="summary-box">
+      <h3>Contraindication</h3>
+      <div id="summary-contraindication"></div>
+    </div>
+
+    <!-- Drug-drug Interactions -->
+    <div class="summary-box">
+      <h3>Drug-drug Interaction</h3>
+      <div id="summary-interactions"></div>
+    </div>
+
+    <!-- Treatment Recommendation -->
+    <div class="summary-box recommendation">
+      <h3>Treatment Recommendation</h3>
+      <ul id="recommendation-list" class="highlight-list">
+        <!-- Example possible outputs -->
+        <li>Eliquis 2 × 5 mg</li>
+        <li>Eliquis 2 × 2.5 mg</li>
+        <li>Xarelto 1 × 20 mg</li>
+        <li>Xarelto 1 × 15 mg</li>
+        <li>Xarelto 1 × 10 mg</li>
+        <li>Marcoumar</li>
+        <li>Consult hematology</li>
+        <li>Consider additional PPI therapy</li>
+        <li>Peak level monitoring after 2–4 h recommended</li>
+      </ul>
+    </div>
+  </fieldset>
+
+  <style>
+    .summary-box {
+      background: #f8f9fa;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+    }
+    .summary-box h3 {
+      margin-top: 0;
+    }
+    .highlight-list {
+      list-style: none;
+      padding: 0;
+    }
+    .highlight-list li {
+      background: #e8f4ff;
+      padding: 6px 8px;
+      margin: 4px 0;
+      border-left: 4px solid #007bff;
+      border-radius: 4px;
+    }
+    .recommendation {
+      background: #fff3cd;
+      border-color: #ffeeba;
+    }
+  </style>
+`,
 };
