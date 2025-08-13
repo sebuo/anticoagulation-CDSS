@@ -65,40 +65,47 @@ export const TEMPLATES = {
     `,
   1: () => /*html*/`
       <fieldset>
-        <legend>CHADS-VASc</legend>
+  <legend>CHADS-VASc</legend>
 
-        <div class="mb-3">
-          <label class="label">Age group</label>
-          <div class="grid">
-            <label class="inline"><input type="radio" name="age" id="age1" value="0"> <span>&lt;18</span></label>
-            <label class="inline"><input type="radio" name="age" id="age2" value="0"> <span>18-64</span></label>
-            <label class="inline"><input type="radio" name="age" id="age3" value="1"> <span>65-74</span></label>
-            <label class="inline"><input type="radio" name="age" id="age4" value="2"> <span>75-80</span></label>
-            <label class="inline"><input type="radio" name="age" id="age5" value="2"> <span>&ge;80</span></label>
-  
+  <div class="mb-3">
+    <label class="label">Age group</label>
+    <div class="grid">
+      <label class="inline"><input type="radio" name="age" id="age1" value="0"> <span>&lt;18</span></label>
+      <label class="inline"><input type="radio" name="age" id="age2" value="0"> <span>18-64</span></label>
+      <label class="inline"><input type="radio" name="age" id="age3" value="1"> <span>65-74</span></label>
+      <label class="inline"><input type="radio" name="age" id="age4" value="2"> <span>75-80</span></label>
+      <label class="inline"><input type="radio" name="age" id="age5" value="2"> <span>&ge;80</span></label>
+    </div>
+  </div>
 
-        <div class="mb-3">
-          <label class="label">Sex</label>
-          <div class="grid">
-            <label class="inline"><input type="radio" name="sex" id="male" value="0"> <span>Male</span></label>
-            <label class="inline"><input type="radio" name="sex" id="female" value="1"> <span>Female</span></label>
-          </div>
-        </div>
+  <div class="mb-3">
+    <label class="label">Sex</label>
+    <div class="grid">
+      <label class="inline"><input type="radio" name="sex" id="male" value="0"> <span>Male</span></label>
+      <label class="inline"><input type="radio" name="sex" id="female" value="1"> <span>Female</span></label>
+    </div>
+  </div>
 
-        <p><strong>Does your patient has one or more of the following pre-existing conditions? Select all that apply</strong></p>
-        <div class="grid cols-2">
-          <label class="inline checkbox"><input type="checkbox" id="congestiveHF" name="congestiveHF" value="1"> Congestive Heart Failure</label>
-          <label class="inline checkbox"><input type="checkbox" id="hypertension" name="hypertension" value="1"> Hypertension</label>
-          <label class="inline checkbox"><input type="checkbox" id="diabetes" name="diabetes" value="1"> Diabetes Mellitus</label>
-          <label class="inline checkbox"><input type="checkbox" id="strokeTIA" name="strokeTIA" value="2"> Stroke / TIA / Thromboembolism</label>
-          <label class="inline checkbox"><input type="checkbox" id="vascularDisease" name="vascularDisease" value="1"> Vascular Disease (MI, PAD, Aortic plaque)</label>
-          <label class="inline checkbox"><input type="checkbox" id="None" name="None" value="1">None of the above</label>
-        </div>
+  <p><strong>Does your patient have one or more of the following pre-existing conditions? Select all that apply</strong></p>
+  <div class="grid cols-2">
+    <label class="inline checkbox"><input type="checkbox" id="congestiveHF" name="congestiveHF" value="1"> Congestive Heart Failure</label>
+    <label class="inline checkbox"><input type="checkbox" id="hypertension" name="hypertension" value="1"> Hypertension</label>
+    <label class="inline checkbox"><input type="checkbox" id="diabetes" name="diabetes" value="1"> Diabetes Mellitus</label>
+    <label class="inline checkbox"><input type="checkbox" id="strokeTIA" name="strokeTIA" value="2"> Stroke / TIA / Thromboembolism</label>
+    <label class="inline checkbox"><input type="checkbox" id="vascularDisease" name="vascularDisease" value="1"> Vascular Disease (MI, PAD, Aortic plaque)</label>
+    <label class="inline checkbox"><input type="checkbox" id="None" name="None" value="1"> None of the above</label>
+  </div>
 
-        <div class="notice ok" id="chads-preview" aria-live="polite">
-          Score: <strong id="scoreResult">-</span>
-        </div>
-      </fieldset>
+  <!-- Calculate Score Button -->
+  <div class="nav" style="margin-top:12px;">
+    <button type="button" class="btn primary" id="calculateChadsScore">Calculate Score</button>
+  </div>
+
+  <div class="notice ok" id="chads-preview" aria-live="polite" style="margin-top:10px;">
+    Score: <strong id="scoreResult">-</strong>
+  </div>
+</fieldset>
+
     `,
   2: () => /*html*/`
       <fieldset>
