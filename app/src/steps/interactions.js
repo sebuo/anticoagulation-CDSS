@@ -92,12 +92,11 @@ export function initInteractionsStep(formEl, state) {
       hasBledSection.style.display = isInteractingDrugSelected ? 'block' : 'none';
     }
     // --- MODIFICATION END ---
-
-
     // Persist in state
     state.hasbled = {
       ...state.hasbled,
       total_score: total,
+      medication_condition_peak_lvl: isInteractingDrugSelected,
     };
   }
 

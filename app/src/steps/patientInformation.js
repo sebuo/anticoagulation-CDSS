@@ -119,5 +119,8 @@ export function validatePatientInformationStep(root) {
     const ageNum = ageEl && ageEl.type === 'number' ? ageEl.valueAsNumber : Number(ageRaw);
     const underage = ageRaw.trim() !== '' && Number.isFinite(ageNum) && ageNum < 18;
 
-    return {valid, underage};
+    const crea = root.querySelector('[name="patient_kreatinin"]');
+    const creaNum = Number(crea);
+
+    return {valid, underage, creaNum};
 }

@@ -126,6 +126,7 @@ function goNext() {
         } else {
             saveCurrentStep();
             state.contraindications.underage = res.underage;
+            state.patient.creatinin = res.creaNum;
             nextStep = res.underage ? (totalSteps - 1) : clampStep(currentStep + 1);
         }
         // Step 1: Indication (CHADS-VASc)
