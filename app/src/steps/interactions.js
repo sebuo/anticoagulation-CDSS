@@ -54,8 +54,7 @@ export function initInteractionsStep(formEl, state) {
     // Derived from other parts of the state
     const age = Number(state?.patient?.age);
     const elderly = Number.isFinite(age) && age >= 65;
-    const cv = state?.chadsvasc || {};
-    const strokeFromChads = !!(cv.stroke_TIA || cv.strokeTIA || cv.stroke);
+    const strokeFromChads = !!(state?.chadsvasc.strokeTIA);
     const hbDrugs = (getEl('aspirin')?.checked || getEl('clopidogrel')?.checked || getEl('nsaid')?.checked) && !getEl('none')?.checked;
 
     // Update read-only derived factor checkboxes

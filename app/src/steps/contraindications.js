@@ -1,3 +1,5 @@
+import { escapeHtml } from '../utils.js';
+
 /**
  * Initializes the Contraindications step.
  * @param {HTMLElement} formEl - The form element for this step.
@@ -67,7 +69,7 @@ export function initContraindicationsStep(formEl, state) {
   }
 
   /**
-   * Calculates and stores derived flags like age and renal failure.
+   * Calculates and stores derived flags and the overall contraindication state.
    */
   function computeAndStoreState() {
     // Store simple checkbox values
@@ -85,7 +87,18 @@ export function initContraindicationsStep(formEl, state) {
     state.contraindications.derived_ci_age = age !== null && age < 18;
     state.contraindications.ci_renal_failure = gfr !== null && gfr < 15;
 
-    // You can add logic here to display results if needed
+    // Determine if there is an absolute contraindication
+    const hasAbsoluteCI =
+        state.contraindications.derived_ci_age ||
+        state.contraindications.ci_renal_failure ||
+        state.contraindications.ci_active_bleeding ||
+        state.contraindications.ci_endocarditis ||
+        state.contraindications.ci_gi_ulcus_active ||
+        state.contraindications.ci_liver_failure_child_c_or_coagulopathy ||
+        state.contraindications.ci_pregnant_or_breastfeeding ||
+        state.contraindications.ci_drugs;
+
+    state.contraindications.derived_absolute_contraindication = hasAbsoluteCI;
   }
 
   // --- INITIALIZATION ---
