@@ -210,5 +210,11 @@ export const TEMPLATES = {
         <!-- Dynamic content will be injected here -->
       </ul>
     </div>
+
+    <!-- New box to display the full state object -->
+    <div class="summary-box">
+      <h3>Full State Object (for debugging)</h3>
+      <pre id="summary-full-state" class="state-preview"></pre>
+    </div>
   </fieldset>
 `};
