@@ -35,7 +35,7 @@ export const TEMPLATES = {
         </div>
         <div class="help">0–1000 µmol/l</div>
         <!-- The info box, hidden by default -->
-        <div id="creatinine-info-box" class="info-box">Creatinine is a waste product from the normal breakdown of muscle tissue.</div>
+        <div id="creatinine-info-box" class="info-box">If serum creatinine is above 1000 µmol/L, enter 1000.</div>
       </label>
       <label class="label">GFR
         <div class="input-with-button-container">
@@ -45,7 +45,7 @@ export const TEMPLATES = {
         </div>
         <div class="help">0–120 (ml/min)</div>
         <!-- The new GFR info box -->
-        <div id="gfr-info-box" class="info-box">Glomerular Filtration Rate</div>
+        <div id="gfr-info-box" class="info-box">If GFR is above 120 mL/min, enter 120.</div>
       </label>
     </div>
   </fieldset>
@@ -85,7 +85,7 @@ export const TEMPLATES = {
         </label>
         <button type="button" class="info-btn" data-toggles="vascular-disease-info-box">i</button>
         <div id="vascular-disease-info-box" class="info-box">
-          Myocardial infarction (MI), peripheral artery disease (PAD), and aortic plaque are all related to atherosclerosis, a condition where fatty deposits (plaque) build up in arteries.
+          Myocardial infarction (MI), peripheral artery disease (PAD), and aortic plaque.
         </div>
       </div>
 
