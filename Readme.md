@@ -8,9 +8,7 @@ The tool is built with Vite.js and the source code is located in the `app` direc
 
 The application is deployed using GitHub Pages and is available at:
 
-[https://your-github-username.github.io/anticoagulation-CDSS/](https://your-github-username.github.io/anticoagulation-CDSS/)
-
-*(Please replace `your-github-username` with the actual GitHub username.)*
+[https://sebuo.github.io/anticoagulation-CDSS/](https://sebuo.github.io/anticoagulation-CDSS/)
 
 ## Development
 
