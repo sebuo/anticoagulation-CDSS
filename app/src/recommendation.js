@@ -157,39 +157,46 @@ export function buildAndRenderRecommendation(sf) {
 
     if (sf.patient.age < 18) {
         recommendations.push({text: 'Consult Hematology', tone: 'warn'});
-    } else if (sf.chadsvasc.score < 2) {
-        recommendations.push({text: 'No anticoagulation indicated.', tone: 'warn'});
-    } else if ((sf.chadsvasc.score >= 2) && (GFR < 15)) {
-        recommendations.push({text: 'Vitamin K antagonist, e.g. Marcoumar.', tone: 'warn'});
-    } else if (!!sf.contraindications.derived_absolute_contraindication) {
-        recommendations.push({text: 'Vitamin K antagonist, e.g. Marcoumar.', tone: 'warn'});
-    }
-    if (eliquisDose(sf)) {
-        recommendations.push({text: 'Eliquis 2x2.5mg', tone: 'warn'});
-    } else if (!eliquisDose(sf)){
-        recommendations.push({text: 'Eliquis 2x5mg', tone: 'warn'});
-    }
-    if ((GFR >= 15) && (GFR <= 30)){
-        recommendations.push({text: 'Xarelto 1x10mg after hematology consultation.', tone: 'warn'});
-    } else if ((GFR > 30) && (GFR < 50) && (sf.interactions.Aspirin || sf.interactions.Clopidogrel)) {
-        recommendations.push({text: 'Xarelto 1x15mg', tone: 'warn'});
-        recommendations.push({text: 'Xarelto 1x10mg', tone: 'warn'});
-    } else if ((GFR > 30) && (GFR < 50) && !(sf.interactions.Aspirin) && !(sf.interactions.Clopidogrel)) {
-        recommendations.push({text: 'Xarelto 1x15mg', tone: 'warn'});
-    } else if (GFR >= 50){
-        recommendations.push({text: 'Xarelto 1x20mg', tone: 'warn'});
-    }
+    } else {
+        if (sf.chadsvasc.score < 2) {
+            recommendations.push({text: 'No anticoagulation indicated.', tone: 'warn'});
+        } else {
+            if ((sf.chadsvasc.score >= 2) && (GFR < 15)) {
+                recommendations.push({text: 'Vitamin K antagonist, e.g. Marcoumar.', tone: 'warn'});
+            } else {
+                if (!!sf.contraindications.derived_absolute_contraindication) {
+                    recommendations.push({text: 'Vitamin K antagonist, e.g. Marcoumar.', tone: 'warn'});
+                } else {
+                    if (eliquisDose(sf)) {
+                        recommendations.push({text: 'Eliquis 2x2.5mg', tone: 'warn'});
+                    } else if (!eliquisDose(sf)) {
+                        recommendations.push({text: 'Eliquis 2x5mg', tone: 'warn'});
+                    }
+                    if ((GFR >= 15) && (GFR <= 30)) {
+                        recommendations.push({text: 'Xarelto 1x10mg after hematology consultation.', tone: 'warn'});
+                    } else if ((GFR > 30) && (GFR < 50) && (sf.interactions.Aspirin || sf.interactions.Clopidogrel)) {
+                        recommendations.push({text: 'Xarelto 1x15mg', tone: 'warn'});
+                        recommendations.push({text: 'Xarelto 1x10mg', tone: 'warn'});
+                    } else if ((GFR > 30) && (GFR < 50) && !(sf.interactions.Aspirin) && !(sf.interactions.Clopidogrel)) {
+                        recommendations.push({text: 'Xarelto 1x15mg', tone: 'warn'});
+                    } else if (GFR >= 50) {
+                        recommendations.push({text: 'Xarelto 1x20mg', tone: 'warn'});
+                    }
 
-    if (!!sf.interactions.derived_PPI_indication) {
-        recommendations.push({text: 'Consider additional PPI therapy.', tone: 'warn'});
-    }
-    if (peakLvl(sf)) {
-        recommendations.push({
-            text: 'Monitoring of peak plasma level (2–4 h after intake) is recommended.',
-            tone: 'warn'
-        });
-    }
+                    if (!!sf.interactions.derived_PPI_indication) {
+                        recommendations.push({text: 'Consider additional PPI therapy.', tone: 'warn'});
+                    }
+                    if (peakLvl(sf)) {
+                        recommendations.push({
+                            text: 'Monitoring of peak plasma level (2–4 h after intake) is recommended.',
+                            tone: 'warn'
+                        });
+                    }
+                }
+            }
+        }
 
+    }
 
     recommendationListEl.innerHTML = recommendations
         .map(rec => `<li class="tone-${rec.tone}">${escapeHtml(rec.text)}</li>`)

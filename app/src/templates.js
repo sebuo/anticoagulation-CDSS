@@ -205,15 +205,10 @@ export const TEMPLATES = {
 
     <div class="summary-box recommendation">
       <h3>Treatment Recommendation</h3>
+      <p>If multiple DOACs are recommended, only choose one.</p>
       <ul id="recommendation-list">
         <!-- Dynamic content will be injected here -->
       </ul>
-    </div>
-
-    <!-- New box to display the full state object -->
-    <div class="summary-box">
-      <h3>Full State Object (for debugging)</h3>
-      <pre id="summary-full-state" class="state-preview"></pre>
     </div>
   </fieldset>
 `};
