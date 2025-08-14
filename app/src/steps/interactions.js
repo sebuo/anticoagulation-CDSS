@@ -54,7 +54,9 @@ export function initInteractionsStep(formEl, state) {
     // Derived from other parts of the state
     const age = Number(state?.patient?.age);
     const elderly = Number.isFinite(age) && age >= 65;
-    const strokeFromChads = !!(state?.chadsvasc.strokeTIA);
+
+    const strokeFromChads = !!state.chadsvasc?.stroke_or_tia;
+    console.log(strokeFromChads)
     const hbDrugs = (getEl('aspirin')?.checked || getEl('clopidogrel')?.checked || getEl('nsaid')?.checked) && !getEl('none')?.checked;
 
     // Update read-only derived factor checkboxes
@@ -80,11 +82,17 @@ export function initInteractionsStep(formEl, state) {
     const scoreEl = getElById('hb-score');
     if (scoreEl) scoreEl.textContent = String(total);
 
-    // Show or hide the entire HAS-BLED section based on the total.
+    // --- MODIFICATION START ---
+    // Check if any of the specified interacting drugs are selected.
+    const isInteractingDrugSelected = INTERACTING_DRUG_IDS.some(drugId => getEl(drugId)?.checked);
+
+    // Show or hide the entire HAS-BLED section based on the new condition.
     const hasBledSection = getElById('has-bled-section');
     if (hasBledSection) {
-      hasBledSection.style.display = total > 0 ? 'block' : 'none';
+      hasBledSection.style.display = isInteractingDrugSelected ? 'block' : 'none';
     }
+    // --- MODIFICATION END ---
+
 
     // Persist in state
     state.hasbled = {

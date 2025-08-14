@@ -145,4 +145,9 @@ export function initChadsvascStep(formEl, state){
   }
 
   computeChadsFromForm();
+
+  // Return a cleanup function
+  return () => {
+    formEl.removeEventListener('change', computeChadsFromForm);
+  }
 }

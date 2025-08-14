@@ -19,6 +19,7 @@ const PROGRESS = document.getElementById('progress-bar');
 // --- STATE -----------------------------------------------------------
 let currentStep = 0;
 const totalSteps = Object.keys(TEMPLATES).length; // expected 5 (0..4)
+let cleanupStep = () => {}; // Holds the cleanup function for the current step
 
 // --- HELPERS ---------------------------------------------------------
 function clampStep(n) {
@@ -62,13 +63,13 @@ function renderStepper() {
 
 function initStepSpecificLogic() {
     if (currentStep === 0) {
-        initPatientInformationStep(FORM);
+        return initPatientInformationStep(FORM);
     } else if (currentStep === 1) {
-        initChadsvascStep(FORM, state);
+        return initChadsvascStep(FORM, state);
     } else if (currentStep === 2) {
-        initContraindicationsStep(FORM, state);
+        return initContraindicationsStep(FORM, state);
     } else if (currentStep === 3) {
-        initInteractionsStep(FORM, state);
+        return initInteractionsStep(FORM, state);
     } else if (currentStep === 4) {
         try {
             // On the final step, call both functions to render the complete summary and recommendation.
@@ -78,9 +79,15 @@ function initStepSpecificLogic() {
             console.error('Summary rendering failed:', e);
         }
     }
+    return () => {}; // Default empty cleanup function
 }
 
 function render() {
+    // Run cleanup from the previous step before doing anything else.
+    if (typeof cleanupStep === 'function') {
+        cleanupStep();
+    }
+
     const tpl = TEMPLATES[currentStep];
     if (typeof tpl !== 'function') {
         throw new Error(`No template for step ${currentStep}`);
@@ -93,7 +100,9 @@ function render() {
         hydrateForm(FORM, state[stepKey] || {});
     }
 
-    initStepSpecificLogic();
+    // Store the cleanup function for the step we are now initializing.
+    cleanupStep = initStepSpecificLogic();
+
     renderStepper();
     updateButtons();
     updateProgress();
@@ -116,6 +125,7 @@ function goNext() {
             canProceed = false;
         } else {
             saveCurrentStep();
+            state.contraindications.underage = res.underage;
             nextStep = res.underage ? (totalSteps - 1) : clampStep(currentStep + 1);
         }
         // Step 1: Indication (CHADS-VASc)
@@ -125,23 +135,45 @@ function goNext() {
             alert('Please select a sex before proceeding.');
         } else {
             const score = state.chadsvasc.score;
-            // Business rule: score < 2 jumps straight to recommendation.
-            nextStep = score < 2 ? (totalSteps - 1) : 2;
+            const gfr = state.patient.patient_gfr;
+
+            if (score < 2){
+                nextStep = (totalSteps - 1);
+                state.contraindications.ci_renal_failure = false;
+            } else if ((score >= 2) && (gfr < 15)) {
+                state.contraindications.ci_renal_failure = true;
+                nextStep = (totalSteps - 1);
+            } else {
+                nextStep = clampStep(currentStep + 1);
+            }
         }
         // Step 2: Contraindications
     } else if (currentStep === 2) {
         saveCurrentStep();
-        if (state.contraindications.derived_absolute_contraindication) {
+
+        const hasAbsoluteContraindication = [
+            state.contraindications.ci_active_bleeding,
+            state.contraindications.ci_endocarditis,
+            state.contraindications.ci_gi_ulcus_active,
+            state.contraindications.ci_liver_failure_child_c_or_coagulopathy,
+            state.contraindications.ci_pregnant_or_breastfeeding,
+            state.contraindications.ci_drugs,
+            state.contraindications.ci_renal_failure,
+        ].some(Boolean);
+
+        // Store the calculated value back into the state for consistency.
+        state.contraindications.derived_absolute_contraindication = hasAbsoluteContraindication;
+
+        // Now, check the freshly calculated value.
+        if (hasAbsoluteContraindication) {
             nextStep = (totalSteps - 1);
         } else {
             nextStep = clampStep(currentStep + 1);
         }
         // Step 3: Interactions
     } else if (currentStep === 3) {
-        saveCurrentStep();
         nextStep = clampStep(currentStep + 1);
     }
-    // No case needed for step 4, as the "Next" button is hidden.
 
     // If all checks passed, update the current step and render the new view.
     if (canProceed && nextStep !== -1) {

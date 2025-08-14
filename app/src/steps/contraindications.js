@@ -1,5 +1,3 @@
-import { escapeHtml } from '../utils.js';
-
 /**
  * Initializes the Contraindications step.
  * @param {HTMLElement} formEl - The form element for this step.
@@ -9,8 +7,6 @@ export function initContraindicationsStep(formEl, state) {
   // --- HELPERS ---
   const getEl = (name) => formEl.querySelector(`[name="${name}"]`);
   const getSex = () => state.chadsvasc?.sex || null;
-  const getAge = () => Number(state.patient?.age) || null;
-  const getGFR = () => Number(state.patient?.patient_gfr) || null;
 
   // --- LOGIC ---
 
@@ -30,7 +26,7 @@ export function initContraindicationsStep(formEl, state) {
 
     if (!noneCheckbox) return;
 
-    // When "None" is clicked...
+    // When "None of the above" is clicked...
     noneCheckbox.addEventListener('change', () => {
       const isChecked = noneCheckbox.checked;
       otherCheckboxes.forEach(cb => {
@@ -72,33 +68,17 @@ export function initContraindicationsStep(formEl, state) {
    * Calculates and stores derived flags and the overall contraindication state.
    */
   function computeAndStoreState() {
-    // Store simple checkbox values
-    state.contraindications.ci_active_bleeding = getEl('ci_active_bleeding')?.checked || false;
-    state.contraindications.ci_endocarditis = getEl('ci_endocarditis')?.checked || false;
-    state.contraindications.ci_gi_ulcus_active = getEl('ci_gi_ulcus_active')?.checked || false;
-    state.contraindications.ci_liver_failure_child_c_or_coagulopathy = getEl('ci_liver_failure_child_c_or_coagulopathy')?.checked || false;
-    state.contraindications.ci_pregnant_or_breastfeeding = getEl('ci_pregnant_or_breastfeeding')?.checked || false;
-    state.contraindications.ci_drugs = getEl('ci_drugs')?.checked || false;
-    state.contraindications.ci_none = getEl('ci_none')?.checked || false;
+    // Helper to read checkbox state using the correct selector
+    const readCheckbox = (name) => !!getEl(name)?.checked;
 
-    // Calculate and store derived flags
-    const age = getAge();
-    const gfr = getGFR();
-    state.contraindications.derived_ci_age = age !== null && age < 18;
-    state.contraindications.ci_renal_failure = gfr !== null && gfr < 15;
-
-    // Determine if there is an absolute contraindication
-    const hasAbsoluteCI =
-        state.contraindications.derived_ci_age ||
-        state.contraindications.ci_renal_failure ||
-        state.contraindications.ci_active_bleeding ||
-        state.contraindications.ci_endocarditis ||
-        state.contraindications.ci_gi_ulcus_active ||
-        state.contraindications.ci_liver_failure_child_c_or_coagulopathy ||
-        state.contraindications.ci_pregnant_or_breastfeeding ||
-        state.contraindications.ci_drugs;
-
-    state.contraindications.derived_absolute_contraindication = hasAbsoluteCI;
+    // Store simple checkbox values using the correct reader
+    state.contraindications.ci_active_bleeding = readCheckbox('ci_active_bleeding');
+    state.contraindications.ci_endocarditis = readCheckbox('ci_endocarditis');
+    state.contraindications.ci_gi_ulcus_active = readCheckbox('ci_gi_ulcus_active');
+    state.contraindications.ci_liver_failure_child_c_or_coagulopathy = readCheckbox('ci_liver_failure_child_c_or_coagulopathy');
+    state.contraindications.ci_pregnant_or_breastfeeding = readCheckbox('ci_pregnant_or_breastfeeding');
+    state.contraindications.ci_drugs = readCheckbox('ci_drugs');
+    state.contraindications.ci_none = readCheckbox('ci_none');
   }
 
   // --- INITIALIZATION ---
